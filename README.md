@@ -1,34 +1,59 @@
 # Food Ordering Platform 🍔
 
-**Food Delivery Platform (Full-Stack System)**  
-🔗 https://food-delivery-pro.onrender.com/
-
-Originally based on a responsive frontend concept inspired by the Omnifood project:  
-🔗 https://mzughbor.github.io/recovery-p-c01-s08-omnifood-project-responsive-version/index.html  
-
-Extended into a full-stack application with backend integration using Django.
-
 **Key Features**
 - Authentication and role-based access (Admin, Restaurant Owner, Delivery, Customer)  
 - Order management and workflow system  
 - Backend API and database integration (PostgreSQL)  
 - Responsive frontend extended from static design to dynamic system  
 
-**Demo Accounts (for testing only)**  
-
-| Role               | Login                      | Password      |
-|--------------------|----------------------------|---------------|
-| Admin              | mzughbor                   | mzug123456    |
-| Restaurant Owner   | restaurant_owner01 / restaurant_owner01@gmail.com | Lost4Dream |
-| Delivery           | del-01-test / delivery-01@gmail.com               | Lost4Dream |
-| Customer           | jouly                      | Lost4Dream    |
-
-> Demo accounts are limited and intended for testing application features only.
-
 
 A Django web app for ordering food online. Restaurant owners can manage their meals, customers can browse and order, delivery people can handle deliveries, and admins can manage everything.
 
 ## What We Built
+
+## 📸 Screenshots
+
+### 🏠 Customer Experience
+
+#### Home & Restaurant Browsing
+![Home Page](screenshots/home.png)
+
+
+
+#### Cart & Checkout
+![Cart and Checkout](screenshots/cart.PNG)
+
+#### Order Tracking
+![Order Tracking](screenshots/order-tracking.png)
+
+---
+
+### 🏪 Restaurant Owner Dashboard
+
+![Restaurant Dashboard](screenshots/restaurant-dashboard.png)
+
+#### Restaurant Order Management
+![Restaurant Orders](/screenshots/restuarant.PNG)
+
+---
+
+### 🚚 Delivery Dashboard
+
+![Login](/screenshots/login.PNG)
+
+---
+
+### 📊 Admin Dashboard
+
+![Admin Dashboard](/screenshots/user_management.PNG)
+![Admin Dashboard](/screenshots/order.PNG)
+
+---
+
+### 📱 customer Design
+
+![Mobile Responsive View](/screenshots/customer.PNG)
+
 
 ### ✅ Complete Features
 - **User System**: Sign up and log in with username or email
