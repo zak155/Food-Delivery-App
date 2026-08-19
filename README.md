@@ -24,7 +24,7 @@ A Django web app for ordering food online. Restaurant owners can manage their me
 ![Cart and Checkout](screenshots/cart.PNG)
 
 #### Order Tracking
-![Order Tracking](screenshots/order-tracking.png)
+![Order Tracking](screenshots/order.PNG)
 
 ---
 
@@ -46,7 +46,7 @@ A Django web app for ordering food online. Restaurant owners can manage their me
 ### 📊 Admin Dashboard
 
 ![Admin Dashboard](/screenshots/user_management.PNG)
-![Admin Dashboard](/screenshots/order.PNG)
+
 
 ---
 
