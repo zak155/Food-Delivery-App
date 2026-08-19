@@ -127,7 +127,7 @@ cd Food_Ordering_Platform
 python -m venv venv
 
 # Activate it (Linux/Mac)
-source venv/bin/activate
+source food/scripts/activate
 
 # Activate it (Windows)
 venv\Scripts\activate
@@ -137,15 +137,9 @@ venv\Scripts\activate
 ```bash
 pip install -r requirements.txt
 
-# For MySQL support (Ubuntu/Debian)
-sudo apt-get install default-libmysqlclient-dev
-pip install mysqlclient
 ```
 
-### 4. Set Up Database
-- Install MySQL on your computer
-- Create a database called `food_ordering_db`
-- Update database settings in `Food_Ordering_Platform/settings.py` if needed
+
 
 ### 5. Run Migrations
 ```bash
