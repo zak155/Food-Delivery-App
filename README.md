@@ -16,7 +16,7 @@ A Django web app for ordering food online. Restaurant owners can manage their me
 ### 🏠 Customer Experience
 
 #### Home & Restaurant Browsing
-![Home Page](/screenshots/home.png)
+![Home Page](/screenshots/home.PNG)
 
 
 
