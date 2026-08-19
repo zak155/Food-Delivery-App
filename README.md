@@ -124,13 +124,11 @@ cd Food_Ordering_Platform
 ### 2. Set Up Python Environment
 ```bash
 # Create virtual environment
-python -m venv venv
+python -m venv food
 
 # Activate it (Linux/Mac)
 source food/scripts/activate
 
-# Activate it (Windows)
-venv\Scripts\activate
 ```
 
 ### 3. Install Dependencies
