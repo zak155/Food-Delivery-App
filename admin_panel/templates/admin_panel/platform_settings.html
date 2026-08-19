@@ -1,0 +1,536 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block title %}Platform Settings - Admin Panel{% endblock %}
+
+{% block content %}
+<!-- CSRF Token for AJAX requests -->
+{% csrf_token %}
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 admin-sidebar p-0">
+            <div class="p-3">
+                <h5 class="fw-bold mb-4">
+                    <ion-icon name="settings-outline" class="me-2"></ion-icon>
+                    Admin Panel
+                </h5>
+                <nav class="nav flex-column">
+                    <a class="nav-link fw-medium" href="{% url 'users:admin_dashboard' %}">
+                        <ion-icon name="grid-outline" class="me-2"></ion-icon>
+                        Dashboard
+                    </a>
+                    <a class="nav-link active fw-medium" href="{% url 'admin_api:platform_settings' %}">
+                        <ion-icon name="cog-outline" class="me-2"></ion-icon>
+                        Platform Settings
+                    </a>
+                    <a class="nav-link fw-medium" href="{% url 'users:home' %}">
+                        <ion-icon name="arrow-back-outline" class="me-2"></ion-icon>
+                        Back to Site
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10 admin-content">
+            <!-- Header -->
+            <div class="admin-header">
+                <div class="container-fluid">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h2 class="fw-bold mb-0">Platform Settings</h2>
+                            <p class="text-body-secondary mb-0">Configure your platform-wide settings</p>
+                        </div>
+                        <div class="col-auto">
+                            <div class="d-flex align-items-center">
+                                <span class="text-body-secondary me-3">Welcome, {{ user.username }}</span>
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        <ion-icon name="person-circle-outline" class="me-1"></ion-icon>
+                                        {{ user.username }}
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="{% url 'users:profile' %}">Profile</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'users:logout' %}">Logout</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Content -->
+            <div class="container-fluid py-4">
+                <form method="post" enctype="multipart/form-data" id="platformSettingsForm">
+                    {% csrf_token %}
+                    
+                    <!-- Site Information -->
+                    <div class="settings-section" id="site-info">
+                        <h4 class="mb-4">
+                            <ion-icon name="information-circle-outline" class="me-2"></ion-icon>
+                            Site Information
+                        </h4>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.site_name.id_for_label }}" class="form-label fw-bold">Site Name</label>
+                                {{ form.site_name }}
+                                {% if form.site_name.errors %}
+                                    <div class="text-danger small">{{ form.site_name.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">{{ form.site_name.help_text }}</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.site_logo.id_for_label }}" class="form-label fw-bold">Site Logo</label>
+                                {{ form.site_logo }}
+                                {% if form.site_logo.errors %}
+                                    <div class="text-danger small">{{ form.site_logo.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">{{ form.site_logo.help_text }}</div>
+                                {% if settings.site_logo %}
+                                    <div class="mt-2">
+                                        <img src="{{ settings.site_logo.url }}" alt="Current logo" class="img-fluid" style="max-height: 60px;">
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.site_description.id_for_label }}" class="form-label fw-bold">Site Description</label>
+                                {{ form.site_description }}
+                                {% if form.site_description.errors %}
+                                    <div class="text-danger small">{{ form.site_description.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">{{ form.site_description.help_text }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.site_favicon.id_for_label }}" class="form-label fw-bold">Site Favicon</label>
+                                {{ form.site_favicon }}
+                                {% if form.site_favicon.errors %}
+                                    <div class="text-danger small">{{ form.site_favicon.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">{{ form.site_favicon.help_text }}</div>
+                                {% if settings.site_favicon %}
+                                    <div class="mt-2">
+                                        <img src="{{ settings.site_favicon.url }}" alt="Current favicon" class="img-fluid" style="max-height: 32px;">
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="settings-section" id="contact-support">
+                        <h4 class="mb-4">
+                            <ion-icon name="call-outline" class="me-2"></ion-icon>
+                            Contact Information
+                        </h4>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.contact_email.id_for_label }}" class="form-label fw-bold">Contact Email</label>
+                                {{ form.contact_email }}
+                                {% if form.contact_email.errors %}
+                                    <div class="text-danger small">{{ form.contact_email.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">{{ form.contact_email.help_text }}</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.support_phone.id_for_label }}" class="form-label fw-bold">Support Phone</label>
+                                {{ form.support_phone }}
+                                {% if form.support_phone.errors %}
+                                    <div class="text-danger small">{{ form.support_phone.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">{{ form.support_phone.help_text }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.support_email.id_for_label }}" class="form-label fw-bold">Support Email</label>
+                                {{ form.support_email }}
+                                {% if form.support_email.errors %}
+                                    <div class="text-danger small">{{ form.support_email.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">{{ form.support_email.help_text }}</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.business_hours.id_for_label }}" class="form-label fw-bold">Business Hours</label>
+                                {{ form.business_hours }}
+                                {% if form.business_hours.errors %}
+                                    <div class="text-danger small">{{ form.business_hours.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">{{ form.business_hours.help_text }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.company_address.id_for_label }}" class="form-label fw-bold">Company Address</label>
+                                {{ form.company_address }}
+                                {% if form.company_address.errors %}
+                                    <div class="text-danger small">{{ form.company_address.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">{{ form.company_address.help_text }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Platform Configuration -->
+                    <div class="settings-section" id="pricing-fees">
+                        <h4 class="mb-4">
+                            <ion-icon name="settings-outline" class="me-2"></ion-icon>
+                            Platform Configuration
+                        </h4>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.default_delivery_fee.id_for_label }}" class="form-label fw-bold">Default Delivery Fee</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    {{ form.default_delivery_fee }}
+                                </div>
+                                {% if form.default_delivery_fee.errors %}
+                                    <div class="text-danger small">{{ form.default_delivery_fee.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">{{ form.default_delivery_fee.help_text }}</div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.free_delivery_threshold.id_for_label }}" class="form-label fw-bold">Free Delivery Threshold</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    {{ form.free_delivery_threshold }}
+                                </div>
+                                {% if form.free_delivery_threshold.errors %}
+                                    <div class="text-danger small">{{ form.free_delivery_threshold.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">{{ form.free_delivery_threshold.help_text }}</div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.tax_rate.id_for_label }}" class="form-label fw-bold">Tax Rate</label>
+                                <div class="input-group">
+                                    {{ form.tax_rate }}
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                {% if form.tax_rate.errors %}
+                                    <div class="text-danger small">{{ form.tax_rate.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">{{ form.tax_rate.help_text }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feature Toggles -->
+                    <div class="settings-section" id="feature-toggles">
+                        <h4 class="mb-4">
+                            <ion-icon name="toggle-outline" class="me-2"></ion-icon>
+                            Feature Toggles
+                        </h4>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="form-check form-switch">
+                                    {{ form.allow_registration }}
+                                    <label class="form-check-label fw-bold" for="{{ form.allow_registration.id_for_label }}">
+                                        Allow User Registration
+                                    </label>
+                                </div>
+                                <div class="form-text">{{ form.allow_registration.help_text }}</div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="form-check form-switch">
+                                    {{ form.allow_restaurant_registration }}
+                                    <label class="form-check-label fw-bold" for="{{ form.allow_restaurant_registration.id_for_label }}">
+                                        Allow Restaurant Registration
+                                    </label>
+                                </div>
+                                <div class="form-text">{{ form.allow_restaurant_registration.help_text }}</div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="form-check form-switch">
+                                    {{ form.maintenance_mode }}
+                                    <label class="form-check-label fw-bold" for="{{ form.maintenance_mode.id_for_label }}">
+                                        Maintenance Mode
+                                    </label>
+                                </div>
+                                <div class="form-text">{{ form.maintenance_mode.help_text }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Social Media -->
+                    <div class="settings-section" id="social-media">
+                        <h4 class="mb-4">
+                            <ion-icon name="share-social-outline" class="me-2"></ion-icon>
+                            Social Media
+                        </h4>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.facebook_url.id_for_label }}" class="form-label fw-bold">Facebook URL</label>
+                                {{ form.facebook_url }}
+                                {% if form.facebook_url.errors %}
+                                    <div class="text-danger small">{{ form.facebook_url.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">{{ form.facebook_url.help_text }}</div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.twitter_url.id_for_label }}" class="form-label fw-bold">Twitter URL</label>
+                                {{ form.twitter_url }}
+                                {% if form.twitter_url.errors %}
+                                    <div class="text-danger small">{{ form.twitter_url.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">{{ form.twitter_url.help_text }}</div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.instagram_url.id_for_label }}" class="form-label fw-bold">Instagram URL</label>
+                                {{ form.instagram_url }}
+                                {% if form.instagram_url.errors %}
+                                    <div class="text-danger small">{{ form.instagram_url.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">{{ form.instagram_url.help_text }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SEO Settings -->
+                    <div class="settings-section" id="seo-settings">
+                        <h4 class="mb-4">
+                            <ion-icon name="search-outline" class="me-2"></ion-icon>
+                            SEO Settings
+                        </h4>
+                        
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.meta_title.id_for_label }}" class="form-label fw-bold">Meta Title</label>
+                                {{ form.meta_title }}
+                                {% if form.meta_title.errors %}
+                                    <div class="text-danger small">{{ form.meta_title.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">{{ form.meta_title.help_text }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.meta_description.id_for_label }}" class="form-label fw-bold">Meta Description</label>
+                                {{ form.meta_description }}
+                                {% if form.meta_description.errors %}
+                                    <div class="text-danger small">{{ form.meta_description.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">{{ form.meta_description.help_text }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.meta_keywords.id_for_label }}" class="form-label fw-bold">Meta Keywords</label>
+                                {{ form.meta_keywords }}
+                                {% if form.meta_keywords.errors %}
+                                    <div class="text-danger small">{{ form.meta_keywords.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">{{ form.meta_keywords.help_text }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Save Button -->
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <ion-icon name="save-outline" class="me-2"></ion-icon>
+                            Save Settings
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Platform Settings Styles -->
+<style>
+    .admin-sidebar {
+        min-height: 100vh;
+        background: var(--bs-body-bg);
+        border-right: 1px solid var(--bs-border-color);
+    }
+    
+    .admin-content {
+        min-height: 100vh;
+        background: var(--bs-body-bg);
+    }
+    
+    .admin-header {
+        background: var(--bs-body-bg);
+        border-bottom: 1px solid var(--bs-border-color);
+        padding: 1rem 0;
+    }
+    
+    .settings-section {
+        background: var(--bs-body-bg);
+        border: 1px solid var(--bs-border-color);
+        border-radius: 0.5rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .settings-section h4 {
+        color: var(--bs-body-color);
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #198754;
+    }
+    
+    .form-label {
+        color: var(--bs-body-color);
+    }
+    
+    /* Dark mode fixes for cards and containers */
+    .card {
+        background-color: var(--bs-body-bg) !important;
+        border-color: var(--bs-border-color) !important;
+    }
+    
+    .card-header {
+        background-color: var(--bs-secondary-bg) !important;
+        border-bottom-color: var(--bs-border-color) !important;
+        color: var(--bs-body-color) !important;
+    }
+    
+    .card-body {
+        background-color: var(--bs-body-bg) !important;
+        color: var(--bs-body-color) !important;
+    }
+    
+    .form-control, .form-select {
+        background-color: var(--bs-body-bg) !important;
+        border-color: var(--bs-border-color) !important;
+        color: var(--bs-body-color) !important;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        background-color: var(--bs-body-bg) !important;
+        border-color: #198754 !important;
+        color: var(--bs-body-color) !important;
+        box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25) !important;
+    }
+    
+    .input-group-text {
+        background-color: var(--bs-secondary-bg) !important;
+        border-color: var(--bs-border-color) !important;
+        color: var(--bs-body-color) !important;
+    }
+    
+    .form-check-label {
+        color: var(--bs-body-color) !important;
+    }
+    
+    .form-control:focus {
+        border-color: #198754;
+        box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+    }
+    
+    .form-check-input:checked {
+        background-color: #198754;
+        border-color: #198754;
+    }
+    
+    .btn-primary {
+        background-color: #198754;
+        border-color: #198754;
+    }
+    
+    .btn-primary:hover {
+        background-color: #157347;
+        border-color: #146c43;
+    }
+    
+    @media (max-width: 768px) {
+        .admin-sidebar {
+            min-height: auto;
+            border-right: none;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .settings-section {
+            padding: 1rem;
+        }
+    }
+</style>
+
+<!-- Platform Settings JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🎛️ Platform Settings loaded');
+        
+        // Form submission with AJAX
+        const form = document.getElementById('platformSettingsForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(form);
+                
+                // Show loading state
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<ion-icon name="hourglass-outline" class="me-2"></ion-icon>Saving...';
+                submitBtn.disabled = true;
+                
+                // Submit form
+                fetch('{% url "admin_api:update_platform_settings" %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification('Platform settings updated successfully!', 'success');
+                    } else {
+                        showNotification('Error: ' + data.error, 'error');
+                    }
+                })
+                .catch(error => {
+                    showNotification('Error updating settings', 'error');
+                })
+                .finally(() => {
+                    // Reset button
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                });
+            });
+        }
+    });
+    
+    function showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        // Add to page
+        document.body.appendChild(notification);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 5000);
+    }
+</script>
+{% endblock %}

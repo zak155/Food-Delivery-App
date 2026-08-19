@@ -1,0 +1,241 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block title %}Apply as Business - FoodOrdering{% endblock %}
+
+{% block content %}
+<!-- Main Content -->
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Header Section -->
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold text-dark mb-3">Apply as Business</h1>
+                <h2 class="h4 text-muted">Business Information</h2>
+            </div>
+
+            <!-- Business Registration Form -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-5">
+                    <form class="business-registration-form" method="post" action="{% url 'users:business_registration' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <!-- Row 1: Email and Full Name -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="business-email" class="form-label fw-medium">Email address *</label>
+                                <input type="email" class="form-control" id="business-email" name="email" placeholder="Enter your email" autocomplete="email" required>
+                                <div id="business-email-message" style="display: none;"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="business-fullname" class="form-label fw-medium">Full name</label>
+                                <input type="text" class="form-control" id="business-fullname" name="full_name" placeholder="Enter your full name" autocomplete="name">
+                            </div>
+                        </div>
+
+                        <!-- Row 2: Password and Confirm Password -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="business-password" class="form-label fw-medium">Password</label>
+                                <input type="password" class="form-control" id="business-password" name="password1" placeholder="Create password" autocomplete="new-password">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="business-confirm-password" class="form-label fw-medium">Confirm Password</label>
+                                <input type="password" class="form-control" id="business-confirm-password" name="password2" placeholder="Confirm password" autocomplete="new-password">
+                            </div>
+                        </div>
+
+                        <!-- Row 3: Restaurant Name and Phone -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="restaurant-name" class="form-label fw-medium">Restaurant Name</label>
+                                <input type="text" class="form-control" id="restaurant-name" name="restaurant_name" placeholder="Enter restaurant name">
+                                <div id="restaurant-name-message" style="display: none;"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phone-number" class="form-label fw-medium">Phone Number</label>
+                                <input type="tel" class="form-control" id="phone-number" name="phone" placeholder="Enter phone number" autocomplete="tel">
+                            </div>
+                        </div>
+
+                        <!-- Row 4: Address and Location -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="business-address" class="form-label fw-medium">Address</label>
+                                <input type="text" class="form-control" id="business-address" name="address" placeholder="Enter restaurant address" autocomplete="street-address">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="location-map" class="form-label fw-medium">Location on the map</label>
+                                <input type="text" class="form-control" id="location-map" name="location" placeholder="Enter location coordinates">
+                            </div>
+                        </div>
+
+                        <!-- Row 5: Logo/Image -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="restaurant-logo" class="form-label fw-medium">Logo / Image</label>
+                                <input type="file" class="form-control" id="restaurant-logo" name="logo" accept="image/*" onchange="previewImage(this)">
+                                <div class="form-text">Upload a logo or image for your restaurant (JPG, PNG, GIF)</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Preview</label>
+                                <div id="image-preview" class="image-preview-container" style="display: none;">
+                                    <img id="preview-img" src="" alt="Logo Preview" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
+                                    <button type="button" class="btn btn-sm btn-outline-danger mt-2" onclick="removeImage()">Remove</button>
+                                </div>
+                                <div id="no-image-placeholder" class="no-image-placeholder">
+                                    <i class="fas fa-image fa-3x text-muted"></i>
+                                    <p class="text-muted mt-2">No image selected</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Row 6: Category/Cuisine Type -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label for="cuisine-type" class="form-label fw-medium">Category / Cuisine Type</label>
+                                <select class="form-select" id="cuisine-type" name="cuisine_type">
+                                    <option value="">Select cuisine type</option>
+                                    <option value="fast-food">Fast Food</option>
+                                    <option value="italian">Italian</option>
+                                    <option value="bakery">Bakery</option>
+                                    <option value="chinese">Chinese</option>
+                                    <option value="mexican">Mexican</option>
+                                    <option value="indian">Indian</option>
+                                    <option value="japanese">Japanese</option>
+                                    <option value="thai">Thai</option>
+                                    <option value="mediterranean">Mediterranean</option>
+                                    <option value="american">American</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Row 7: Restaurant Description and Business Hours -->
+                        <div class="row mb-4">
+                            <div class="col-md-8">
+                                <label for="restaurant-description" class="form-label fw-medium">Restaurant Description</label>
+                                <textarea class="form-control" id="restaurant-description" name="description" rows="4" placeholder="Describe your restaurant, specialties, and what makes it unique"></textarea>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-medium">Business Hours</label>
+                                <div class="mb-2">
+                                    <label for="opening-time" class="form-label small">Opening Time</label>
+                                    <input type="time" class="form-control" id="opening-time" name="opening_time" value="07:45">
+                                </div>
+                                <div>
+                                    <label for="closing-time" class="form-label small">Closing Time</label>
+                                    <input type="time" class="form-control" id="closing-time" name="closing_time" value="18:45">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                Sign up now
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Back to Login -->
+            <div class="text-center mt-4">
+                <p class="text-muted">
+                    Already have an account? 
+                    <a href="{% url 'users:login' %}" class="text-primary text-decoration-none fw-medium">Sign in here</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Business Registration JS -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Form validation
+        const form = document.querySelector('.business-registration-form');
+        const password1 = document.getElementById('business-password');
+        const password2 = document.getElementById('business-confirm-password');
+        
+        form.addEventListener('submit', function(e) {
+            // Check password match
+            if (password1.value !== password2.value) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+                password2.focus();
+                return false;
+            }
+            
+            // Check required fields
+            const requiredFields = ['business-email', 'business-password', 'business-confirm-password'];
+            for (let fieldId of requiredFields) {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    e.preventDefault();
+                    alert(`${field.previousElementSibling.textContent} is required!`);
+                    field.focus();
+                    return false;
+                }
+            }
+        });
+        
+        // Real-time password validation
+        password2.addEventListener('input', function() {
+            if (password1.value !== password2.value) {
+                password2.setCustomValidity('Passwords do not match');
+            } else {
+                password2.setCustomValidity('');
+            }
+        });
+    });
+
+    // Image preview functionality
+    function previewImage(input) {
+        const file = input.files[0];
+        const previewContainer = document.getElementById('image-preview');
+        const previewImg = document.getElementById('preview-img');
+        const noImagePlaceholder = document.getElementById('no-image-placeholder');
+        
+        if (file) {
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('Please select a valid image file.');
+                input.value = '';
+                return;
+            }
+            
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Image size should be less than 5MB.');
+                input.value = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                previewContainer.style.display = 'block';
+                noImagePlaceholder.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            previewContainer.style.display = 'none';
+            noImagePlaceholder.style.display = 'block';
+        }
+    }
+    
+    function removeImage() {
+        const input = document.getElementById('restaurant-logo');
+        const previewContainer = document.getElementById('image-preview');
+        const noImagePlaceholder = document.getElementById('no-image-placeholder');
+        
+        input.value = '';
+        previewContainer.style.display = 'none';
+        noImagePlaceholder.style.display = 'block';
+    }
+</script>
+
+<!-- Include Email Validation JavaScript -->
+<script src="{% static 'js/email-validation.js' %}"></script>
+{% endblock %}

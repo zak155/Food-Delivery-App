@@ -1,0 +1,253 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block title %}Your Cart - FoodOrdering{% endblock %}
+
+{% block content %}
+<!-- Add to Cart Popup is handled by cart.js -->
+
+<!-- Main Content -->
+<div class="container py-5">
+    <div class="row g-5">
+        <!-- Cart Items Section -->
+        <div class="col-lg-8">
+            <h2 class="display-6 fw-bold text-dark mb-4">Your Cart</h2>
+            
+            <!-- Cart Items Table -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="border-0 py-3 px-4 fw-bold">Item</th>
+                                    <th class="border-0 py-3 px-4 fw-bold text-center">Price</th>
+                                    <th class="border-0 py-3 px-4 fw-bold text-center">Quantity</th>
+                                    <th class="border-0 py-3 px-4 fw-bold text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cartItems">
+                                {% for item in cart_items %}
+                                <tr class="cart-item">
+                                    <td class="py-4 px-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-3">
+                                                {% if item.meal.image %}
+                                                <img src="{{ item.meal.image.url }}" alt="{{ item.meal.name }}" class="rounded-2" style="width: 60px; height: 60px; object-fit: cover;">
+                                                {% else %}
+                                                <div class="bg-light rounded-2 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                                    <ion-icon name="fast-food-outline" style="font-size: 30px; color: #94D82D;"></ion-icon>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <h6 class="fw-bold mb-1">{{ item.meal.name }}</h6>
+                                                <small class="text-muted">{{ item.meal.restaurant.name }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 text-center">
+                                        <span class="fw-bold">${{ item.price }}</span>
+                                    </td>
+                                    <td class="py-4 px-4 text-center">
+                                        <div class="quantity-controls d-flex align-items-center justify-content-center">
+                                            <button class="btn btn-outline-secondary btn-sm update-quantity-btn" data-action="decrease" data-item-id="{{ item.id }}">
+                                                <ion-icon name="remove-outline"></ion-icon>
+                                            </button>
+                                            <input type="number" class="form-control quantity-input text-center mx-2" id="quantity-{{ item.id }}" name="quantity-{{ item.id }}" value="{{ item.quantity }}" min="1" max="25" style="width: 60px;" data-item-id="{{ item.id }}">
+                                            <button class="btn btn-outline-secondary btn-sm update-quantity-btn" data-action="increase" data-item-id="{{ item.id }}">
+                                                <ion-icon name="add-outline"></ion-icon>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 text-end">
+                                        <div class="d-flex align-items-center justify-content-end gap-2">
+                                            <span class="fw-bold item-total">${{ item.total_price|floatformat:2 }}</span>
+                                            <button class="btn btn-outline-danger btn-sm remove-item-btn" data-item-id="{{ item.id }}" title="Remove item">
+                                                <ion-icon name="trash-outline"></ion-icon>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-5">
+                                        <ion-icon name="cart-outline" style="font-size: 48px; color: #ccc;" class="mb-3"></ion-icon>
+                                        <h5>Your cart is empty</h5>
+                                        <p>Add some delicious meals to get started!</p>
+                                        <a href="{% url 'meals:meal_list' %}" class="btn btn-primary">Browse Meals</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    {% if cart_items %}
+                    <!-- Subtotal -->
+                    <div class="border-top p-4">
+                        <div class="d-flex justify-content-end">
+                            <div class="text-end">
+                                <h6 class="fw-bold mb-0">Subtotal: <span id="subtotal" class="subtotal">${{ cart_total }}</span></h6>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Continue Shopping -->
+            <div class="mt-4">
+                <a href="{% url 'meals:meal_list' %}" class="btn btn-outline-primary">
+                    <ion-icon name="arrow-back-outline" class="me-2"></ion-icon>Continue Shopping
+                </a>
+            </div>
+        </div>
+
+        <!-- Order Summary Section -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm sticky-top" style="top: 100px;">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold text-dark mb-4">Summary ({{ cart_items|length }} item{{ cart_items|length|pluralize }})</h5>
+                    
+                    <!-- Cost Breakdown -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Subtotal</span>
+                            <span class="fw-medium subtotal">${{ cart_total }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Shipping</span>
+                            <span class="fw-medium text-success">Free</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Est. Taxes</span>
+                            <span class="fw-medium text-success">$0.00</span>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-3">
+                    
+                    <!-- Total -->
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="fw-bold fs-5">Total</span>
+                        <span class="fw-bold fs-5 text-primary" id="orderTotal">${{ cart_total }}</span>
+                    </div>
+                    
+                    <!-- Checkout Button -->
+                    {% if cart_items %}
+                    <a href="{% url 'orders:checkout' %}" class="btn btn-primary btn-lg w-100 mb-3">
+                        Checkout
+                    </a>
+                    {% else %}
+                    <button class="btn btn-primary btn-lg w-100 mb-3" disabled>
+                        Checkout
+                    </button>
+                    {% endif %}
+                    
+                    <!-- Security Info -->
+                    <div class="text-center">
+                        <small class="text-muted">
+                            <ion-icon name="shield-checkmark-outline" class="me-1"></ion-icon>
+                            Secure checkout with SSL encryption
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cart functionality is handled by cart.js -->
+
+<!-- Add to Cart Popup Styles -->
+<style>
+    .add-to-cart-popup {
+        animation: slideInUp 0.3s ease-out;
+        z-index: 9999;
+    }
+
+    .popup-content {
+        position: relative;
+        min-width: 250px;
+        max-width: 300px;
+    }
+
+    .popup-arrow {
+        position: absolute;
+        bottom: 100%;
+        right: 20px;
+        width: 0;
+        height: 0;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-bottom: 10px solid white;
+    }
+
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Quantity controls styling */
+    .quantity-controls .btn {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .quantity-controls .btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .remove-item-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .quantity-input {
+        border: 1px solid #dee2e6;
+    }
+
+    .quantity-input:focus {
+        border-color: var(--primary-green);
+        box-shadow: 0 0 0 0.2rem rgba(148, 216, 45, 0.25);
+    }
+
+    /* Debug styling for buttons */
+    .update-quantity-btn, .remove-item-btn {
+        position: relative;
+        z-index: 10;
+    }
+</style>
+
+<!-- Cart JavaScript is loaded in base.html -->
+<script>
+    // Debug: Check if cart.js loaded
+    console.log('Cart page loaded, checking for buttons...');
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM loaded, checking buttons...');
+        const updateBtns = document.querySelectorAll('.update-quantity-btn');
+        const removeBtns = document.querySelectorAll('.remove-item-btn');
+        console.log('Update buttons found:', updateBtns.length);
+        console.log('Remove buttons found:', removeBtns.length);
+        
+        // Test button click
+        updateBtns.forEach((btn, index) => {
+            console.log(`Button ${index}:`, btn, 'data-item-id:', btn.dataset.itemId, 'data-action:', btn.dataset.action);
+        });
+    });
+</script>
+{% endblock %}

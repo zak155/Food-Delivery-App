@@ -1,0 +1,317 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block title %}Checkout - FoodOrdering{% endblock %}
+
+{% block content %}
+<!-- Main Content -->
+<div class="container py-5">
+    <div class="row g-5">
+        <!-- Checkout Form Section -->
+        <div class="col-lg-8">
+            <h2 class="display-6 fw-bold text-dark mb-4">Checkout</h2>
+            
+            <!-- Checkout Form -->
+            <form class="checkout-form" method="post" action="{% url 'orders:process_checkout' %}">
+                {% csrf_token %}
+                
+                <!-- Customer Information -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="fw-bold text-dark mb-0">
+                            <ion-icon name="person-outline" class="me-2"></ion-icon>
+                            Customer Information
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="firstName" class="form-label fw-medium">First Name *</label>
+                                <input type="text" class="form-control" id="firstName" name="first_name" value="{{ user.first_name|default:'' }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="lastName" class="form-label fw-medium">Last Name *</label>
+                                <input type="text" class="form-control" id="lastName" name="last_name" value="{{ user.last_name|default:'' }}" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label fw-medium">Email Address *</label>
+                                <input type="email" class="form-control" id="email" name="email" value="{{ user.email|default:'' }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label fw-medium">Phone Number *</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delivery Address -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="fw-bold text-dark mb-0">
+                            <ion-icon name="location-outline" class="me-2"></ion-icon>
+                            Delivery Address
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label for="address" class="form-label fw-medium">Street Address *</label>
+                                <input type="text" class="form-control" id="address" name="address" placeholder="Enter your full address" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="city" class="form-label fw-medium">City *</label>
+                                <input type="text" class="form-control" id="city" name="city" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="zipCode" class="form-label fw-medium">ZIP Code *</label>
+                                <input type="text" class="form-control" id="zipCode" name="zip_code" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="state" class="form-label fw-medium">State *</label>
+                                <select class="form-select" id="state" name="state" required>
+                                    <option value="">saris</option>
+                                    <option value="CA">bole</option>
+                                    <option value="NY">lideta</option>
+                                    <option value="TX">24</option>
+                                    
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="country" class="form-label fw-medium">Country *</label>
+                                <select class="form-select" id="country" name="country" required>
+                                    <option value="US" selected>Ethiopia</option>
+                                    
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="fw-bold text-dark mb-0">
+                            <ion-icon name="card-outline" class="me-2"></ion-icon>
+                            Payment Method
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="payment_method" id="creditCard" value="credit_card" checked>
+                                    <label class="form-check-label fw-medium" for="creditCard">
+                                        <ion-icon name="card-outline" class="me-2"></ion-icon>
+                                        Credit Card
+                                    </label>
+                                </div>
+                            </div>
+                       <!----    <div class="col-12 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="payment_method" id="paypal" value="paypal">
+                                    <label class="form-check-label fw-medium" for="paypal">
+                                        <ion-icon name="logo-paypal" class="me-2"></ion-icon>
+                                        PayPal
+                                    </label>
+                                </div>-->
+                            </div>
+                            <div class="col-12 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="payment_method" id="cashOnDelivery" value="cash_on_delivery">
+                                    <label class="form-check-label fw-medium" for="cashOnDelivery">
+                                        <ion-icon name="cash-outline" class="me-2"></ion-icon>
+                                        Cash on Delivery
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Credit Card Details -->
+                        <div id="creditCardDetails" class="mt-4">
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <label for="cardNumber" class="form-label fw-medium">Card Number *</label>
+                                    <input type="text" class="form-control" id="cardNumber" name="card_number" placeholder="1234 5678 9012 3456">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="expiryDate" class="form-label fw-medium">Expiry Date *</label>
+                                    <input type="text" class="form-control" id="expiryDate" name="expiry_date" placeholder="MM/YY">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="cvv" class="form-label fw-medium">CVV *</label>
+                                    <input type="text" class="form-control" id="cvv" name="cvv" placeholder="123">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <label for="cardName" class="form-label fw-medium">Name on Card *</label>
+                                    <input type="text" class="form-control" id="cardName" name="card_name" placeholder="John Doe">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Notes -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="fw-bold text-dark mb-0">
+                            <ion-icon name="chatbubble-outline" class="me-2"></ion-icon>
+                            Order Notes
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <label for="orderNotes" class="form-label fw-medium">Special Instructions</label>
+                            <textarea class="form-control" id="orderNotes" name="order_notes" rows="3" placeholder="Any special instructions for your order?"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                        <ion-icon name="checkmark-circle-outline" class="me-2"></ion-icon>
+                        Place Order
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Order Summary Section -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm sticky-top" style="top: 100px;">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold text-dark mb-4">Order Summary</h5>
+                    
+                    <!-- Order Items -->
+                    <div class="mb-4">
+                        {% for item in cart_items %}
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-3">
+                                <div class="bg-light rounded-2 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                    <ion-icon name="fast-food-outline" style="font-size: 24px; color: #94D82D;"></ion-icon>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="fw-bold mb-1">{{ item.meal.name }}</h6>
+                                <small class="text-muted">{{ item.meal.restaurant.name }}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="fw-bold">${{ item.total_price }}</span>
+                                <small class="text-muted d-block">Qty: {{ item.quantity }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <hr class="my-3">
+                    
+                    <!-- Cost Breakdown -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Subtotal</span>
+                            <span class="fw-medium">${{ cart_total }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Delivery Fee</span>
+                            <span class="fw-medium text-success">Free</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Tax</span>
+                            <span class="fw-medium">$0.00</span>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-3">
+                    
+                    <!-- Total -->
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="fw-bold fs-5">Total</span>
+                        <span class="fw-bold fs-5 text-primary">${{ cart_total }}</span>
+                    </div>
+                    
+                    <!-- Security Info -->
+                    <div class="text-center">
+                        <small class="text-muted">
+                            <ion-icon name="shield-checkmark-outline" class="me-1"></ion-icon>
+                            Secure checkout with SSL encryption
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Checkout JS -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Payment method toggle
+        const paymentMethods = document.querySelectorAll('input[name="payment_method"]');
+        const creditCardDetails = document.getElementById('creditCardDetails');
+        
+        paymentMethods.forEach(method => {
+            method.addEventListener('change', function() {
+                if (this.value === 'credit_card') {
+                    creditCardDetails.style.display = 'block';
+                } else {
+                    creditCardDetails.style.display = 'none';
+                }
+            });
+        });
+        
+        // Form validation
+        const form = document.querySelector('.checkout-form');
+        form.addEventListener('submit', function(e) {
+            const selectedPayment = document.querySelector('input[name="payment_method"]:checked').value;
+            
+            if (selectedPayment === 'credit_card') {
+                const cardNumber = document.getElementById('cardNumber').value;
+                const expiryDate = document.getElementById('expiryDate').value;
+                const cvv = document.getElementById('cvv').value;
+                const cardName = document.getElementById('cardName').value;
+                
+                if (!cardNumber || !expiryDate || !cvv || !cardName) {
+                    e.preventDefault();
+                    alert('Please fill in all credit card details.');
+                    return false;
+                }
+            }
+        });
+        
+        // Card number formatting
+        const cardNumberInput = document.getElementById('cardNumber');
+        cardNumberInput.addEventListener('input', function() {
+            let value = this.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+            let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+            this.value = formattedValue;
+        });
+        
+        // Expiry date formatting
+        const expiryDateInput = document.getElementById('expiryDate');
+        expiryDateInput.addEventListener('input', function() {
+            let value = this.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            this.value = value;
+        });
+        
+        // CVV formatting
+        const cvvInput = document.getElementById('cvv');
+        cvvInput.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '').substring(0, 4);
+        });
+    });
+</script>
+{% endblock %}

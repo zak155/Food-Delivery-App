@@ -1,0 +1,979 @@
+/* Bootstrap Custom CSS - Food Ordering Platform */
+
+/* Import Rubik font */
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+
+/* CSS Variables for Design System */
+:root {
+    /* Primary Colors */
+    --primary-green: #94D82D;
+    --secondary-green: #85c229;
+    --dark-green: #76ad24;
+    --light-green: #f4fbea;
+
+    /* Neutral Colors - Light Mode */
+    --text-dark: #333;
+    --text-muted: #555;
+    --text-light: #777;
+    --bg-light: #f8f9fa;
+    --bg-white: #ffffff;
+    --bg-card: #ffffff;
+    --border-color: #dee2e6;
+
+    /* Spacing System (8px base) */
+    --spacing-xs: 0.5rem;
+    /* 8px */
+    --spacing-sm: 1rem;
+    /* 16px */
+    --spacing-md: 1.5rem;
+    /* 24px */
+    --spacing-lg: 2rem;
+    /* 32px */
+    --spacing-xl: 3rem;
+    /* 48px */
+    --spacing-xxl: 4rem;
+    /* 64px */
+
+    /* Border Radius */
+    --border-radius-sm: 0.5rem;
+    --border-radius-md: 0.75rem;
+    --border-radius-lg: 1rem;
+
+    /* Shadows */
+    --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+}
+
+/* Dark Mode Variables */
+[data-bs-theme="dark"] {
+    /* Primary Colors remain the same */
+    --primary-green: #94D82D;
+    --secondary-green: #85c229;
+    --dark-green: #76ad24;
+    --light-green: #1a1a1a;
+
+    /* Dark Mode Colors */
+    --text-dark: #ffffff;
+    --text-muted: #e0e0e0;
+    --text-light: #b0b0b0;
+    --bg-light: #1a1a1a;
+    --bg-white: #2d2d2d;
+    --bg-card: #2d2d2d;
+    --border-color: #404040;
+
+    /* Dark Mode Shadows */
+    --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.5);
+}
+
+/* Global Styles */
+body {
+    font-family: 'Rubik', sans-serif;
+    line-height: 1.6;
+    color: var(--text-muted);
+    background-color: var(--bg-white);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Typography */
+.display-4,
+.display-5,
+.display-6 {
+    font-weight: 700;
+    color: var(--text-dark);
+    letter-spacing: -0.5px;
+}
+
+/* Dark Mode Typography */
+[data-bs-theme="dark"] .display-4,
+[data-bs-theme="dark"] .display-5,
+[data-bs-theme="dark"] .display-6 {
+    color: var(--text-dark);
+}
+
+.lead {
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--text-muted);
+}
+
+/* Dark Mode Lead Text */
+[data-bs-theme="dark"] .lead {
+    color: var(--text-muted);
+}
+
+/* Dark Mode All Headings */
+[data-bs-theme="dark"] h1,
+[data-bs-theme="dark"] h2,
+[data-bs-theme="dark"] h3,
+[data-bs-theme="dark"] h4,
+[data-bs-theme="dark"] h5,
+[data-bs-theme="dark"] h6 {
+    color: var(--text-dark) !important;
+}
+
+/* Custom Background Colors */
+.bg-light-green {
+    background: linear-gradient(135deg, var(--light-green) 0%, #e8f5e8 100%) !important;
+}
+
+/* Dark Mode Background Colors */
+[data-bs-theme="dark"] .bg-light-green {
+    background: linear-gradient(135deg, var(--light-green) 0%, #2d2d2d 100%) !important;
+}
+
+/* Dark Mode Section Backgrounds */
+[data-bs-theme="dark"] .bg-light {
+    background-color: var(--bg-light) !important;
+}
+
+[data-bs-theme="dark"] .hero-section {
+    background: linear-gradient(135deg, var(--light-green) 0%, #2d2d2d 100%) !important;
+}
+
+/* Custom Button Styles */
+.btn-primary {
+    background-color: var(--primary-green);
+    border-color: var(--primary-green);
+    color: white;
+    font-weight: 500;
+    padding: 1rem 2rem;
+    border-radius: var(--border-radius-sm);
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--secondary-green);
+    border-color: var(--secondary-green);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-outline-primary {
+    color: var(--primary-green);
+    border-color: var(--primary-green);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-green);
+    border-color: var(--primary-green);
+    color: white;
+}
+
+.btn-lg {
+    padding: 1.25rem 2.5rem;
+    font-size: 1.125rem;
+}
+
+/* Card Styles */
+.card {
+    border-radius: var(--border-radius-lg);
+    transition: all 0.3s ease;
+    border: none;
+    background-color: var(--bg-card);
+    color: var(--text-dark);
+}
+
+/* Product cards hover effect */
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Filter cards - no hover animation */
+.filter-card {
+    border-radius: var(--border-radius-lg);
+    border: none;
+    background-color: var(--bg-card);
+    color: var(--text-dark);
+}
+
+/* Dark Mode Card Styles */
+[data-bs-theme="dark"] .card {
+    background-color: var(--bg-card);
+    color: var(--text-dark);
+    border: 1px solid var(--border-color);
+}
+
+/* Dark Mode Product Card Image Placeholders */
+[data-bs-theme="dark"] .card .card-img-top {
+    background-color: var(--bg-light) !important;
+}
+
+.card-img-top {
+    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+}
+
+/* Navbar Styles - Fixed Hamburger Menu Issue */
+.navbar {
+    padding: 1.5rem 0;
+    border-bottom: none;
+    background-color: var(--bg-white);
+    transition: background-color 0.3s ease;
+}
+
+/* Dark Mode Navbar */
+[data-bs-theme="dark"] .navbar {
+    background-color: var(--bg-white);
+}
+
+/* Dark Mode Navbar Icons and Links */
+[data-bs-theme="dark"] .navbar .text-dark {
+    color: var(--text-dark) !important;
+}
+
+[data-bs-theme="dark"] .navbar .btn-link {
+    color: var(--text-dark) !important;
+}
+
+[data-bs-theme="dark"] .navbar .btn-link:hover {
+    color: var(--primary-green) !important;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-dark) !important;
+}
+
+/* Dark Mode Navbar Brand */
+[data-bs-theme="dark"] .navbar-brand {
+    color: var(--text-dark) !important;
+}
+
+.nav-link {
+    font-weight: 500;
+    color: var(--text-muted) !important;
+    transition: color 0.3s ease;
+    position: relative;
+}
+
+.nav-link:hover {
+    color: var(--primary-green) !important;
+}
+
+/* Dark Mode Nav Links */
+[data-bs-theme="dark"] .nav-link {
+    color: var(--text-muted) !important;
+}
+
+[data-bs-theme="dark"] .nav-link:hover {
+    color: var(--primary-green) !important;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--primary-green);
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+/* Fix for Bootstrap 5 hamburger menu */
+.navbar-toggler {
+    border: none;
+    padding: 0.25rem 0.5rem;
+}
+
+.navbar-toggler:focus {
+    box-shadow: 0 0 0 0.2rem rgba(148, 216, 45, 0.25);
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2833, 37, 41, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Ensure navbar collapse works properly */
+.navbar-collapse {
+    transition: all 0.3s ease;
+}
+
+/* Hero Section Styles */
+.hero-section {
+    background: linear-gradient(135deg, var(--light-green) 0%, #e8f5e8 100%);
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+}
+
+.hero-image-placeholder {
+    height: 400px;
+    background: linear-gradient(135deg, #f0f8f0 0%, #e8f5e8 100%);
+    border: 2px dashed var(--primary-green);
+}
+
+/* Dark Mode Hero Image Placeholder */
+[data-bs-theme="dark"] .hero-image-placeholder {
+    background: linear-gradient(135deg, var(--bg-card) 0%, #404040 100%);
+    border: 2px dashed var(--primary-green);
+}
+
+/* Dark Mode Hero Section Text */
+[data-bs-theme="dark"] .hero-section h1,
+[data-bs-theme="dark"] .hero-section h2,
+[data-bs-theme="dark"] .hero-section .display-4,
+[data-bs-theme="dark"] .hero-section .display-5,
+[data-bs-theme="dark"] .hero-section .display-6 {
+    color: var(--text-dark) !important;
+}
+
+[data-bs-theme="dark"] .hero-section .lead {
+    color: var(--text-muted) !important;
+}
+
+/* Testimonial Styles */
+.testimonial-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-left: 4px solid var(--primary-green);
+    transition: all 0.3s ease;
+}
+
+.testimonial-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Dark Mode Testimonial Cards */
+[data-bs-theme="dark"] .testimonial-card {
+    background: linear-gradient(135deg, var(--bg-card) 0%, #404040 100%);
+    color: var(--text-dark);
+    border-left: 4px solid var(--primary-green);
+}
+
+.testimonial-avatar {
+    background-color: var(--primary-green) !important;
+}
+
+/* Feature Section Styles */
+.feature-image-placeholder {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px dashed #ccc;
+}
+
+/* Dark Mode Feature Section */
+[data-bs-theme="dark"] .feature-image-placeholder {
+    background: linear-gradient(135deg, var(--bg-card) 0%, #404040 100%);
+    border: 2px dashed var(--border-color);
+}
+
+/* Dark Mode Feature Section Text */
+[data-bs-theme="dark"] .feature-section h2,
+[data-bs-theme="dark"] .feature-section .display-6 {
+    color: var(--text-dark) !important;
+}
+
+[data-bs-theme="dark"] .feature-section .lead {
+    color: var(--text-muted) !important;
+}
+
+/* Footer Styles */
+footer {
+    background-color: #2c3e50 !important;
+}
+
+footer a:hover {
+    color: var(--primary-green) !important;
+    transition: color 0.3s ease;
+}
+
+/* Utility Classes */
+.text-primary {
+    color: var(--primary-green) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary-green) !important;
+}
+
+/* Product Card Enhancements */
+.product-card {
+    cursor: pointer;
+}
+
+.product-card .add-to-cart {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.product-card:hover .add-to-cart {
+    opacity: 1;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .hero-section {
+        min-height: 50vh;
+        text-align: center;
+    }
+
+    .display-4 {
+        font-size: 2.5rem;
+    }
+
+    .display-5 {
+        font-size: 2rem;
+    }
+
+    .display-6 {
+        font-size: 1.75rem;
+    }
+
+    .btn-lg {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+    }
+
+    /* Fix mobile navbar */
+    .navbar-collapse {
+        background-color: rgba(255, 255, 255, 0.95);
+        border-radius: 0.5rem;
+        margin-top: 1rem;
+        padding: 1rem;
+        box-shadow: var(--shadow-md);
+    }
+
+    /* Dark Mode Mobile Navbar */
+    [data-bs-theme="dark"] .navbar-collapse {
+        background-color: rgba(45, 45, 45, 0.95);
+        border: 1px solid var(--border-color);
+    }
+
+    .navbar-nav {
+        text-align: center;
+    }
+
+    .navbar-nav .nav-item {
+        margin: 0.5rem 0;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-section {
+        min-height: 40vh;
+        padding: 2rem 0;
+    }
+
+    .display-4 {
+        font-size: 2rem;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    .testimonial-card {
+        padding: 1.5rem !important;
+    }
+
+    .product-card .add-to-cart {
+        opacity: 1;
+        /* Always show on mobile */
+    }
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.6s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-in-left {
+    animation: slideInLeft 0.6s ease-out;
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.slide-in-right {
+    animation: slideInRight 0.6s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-green);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-green);
+}
+
+/* Focus States */
+.btn:focus,
+.nav-link:focus,
+.form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(148, 216, 45, 0.25);
+    border-color: var(--primary-green);
+}
+
+/* Loading States */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Print Styles */
+@media print {
+
+    .navbar,
+    footer,
+    .btn {
+        display: none !important;
+    }
+
+    body {
+        font-size: 12pt;
+        line-height: 1.4;
+    }
+}
+
+/* Notification Styles */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    min-width: 300px;
+    animation: slideInRight 0.3s ease-out;
+}
+
+/* Ripple Effect */
+.btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    transform: scale(0);
+    animation: ripple-animation 0.6s linear;
+    pointer-events: none;
+}
+
+@keyframes ripple-animation {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Cart Popup Styles */
+.add-to-cart-popup {
+    z-index: 9999;
+    animation: slideInFromTop 0.3s ease-out;
+}
+
+.popup-content {
+    position: relative;
+    min-width: 280px;
+    max-width: 320px;
+    border: 1px solid var(--border-color);
+}
+
+.popup-arrow-up {
+    position: absolute;
+    top: -8px;
+    right: 20px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid var(--bg-white);
+}
+
+.popup-arrow-up::before {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: -8px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid var(--border-color);
+}
+
+/* Dark Mode Cart Popup */
+[data-bs-theme="dark"] .popup-content {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-color);
+}
+
+[data-bs-theme="dark"] .popup-arrow-up {
+    border-bottom-color: var(--bg-card);
+}
+
+[data-bs-theme="dark"] .popup-arrow-up::before {
+    border-bottom-color: var(--border-color);
+}
+
+[data-bs-theme="dark"] .popup-content h6 {
+    color: var(--text-dark) !important;
+}
+
+[data-bs-theme="dark"] .popup-content p {
+    color: var(--text-muted) !important;
+}
+
+/* Animation */
+@keyframes slideInFromTop {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Email Validation Styles */
+.email-validation-message {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.875rem;
+    font-weight: 500;
+    animation: slideDown 0.3s ease-out;
+}
+
+.email-validation-message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.email-validation-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.email-validation-message.info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.email-validation-message i {
+    font-size: 1rem;
+}
+
+/* Form validation states */
+.form-control.is-valid {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.form-control.is-invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Animation for validation messages */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading state for validation */
+.email-validation-message.loading {
+    background-color: #e2e3e5;
+    color: #6c757d;
+    border: 1px solid #d6d8db;
+}
+
+.email-validation-message.loading i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Restaurant Name Validation Styles */
+.restaurant-name-validation-message {
+    display: flex;
+    align-items: center;
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.restaurant-name-validation-message.success {
+    background-color: #d1edff;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.restaurant-name-validation-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.restaurant-name-validation-message.info {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.restaurant-name-validation-message i {
+    margin-right: 0.5rem;
+    font-size: 1rem;
+}
+
+.restaurant-name-validation-message.success i {
+    color: #28a745;
+}
+
+.restaurant-name-validation-message.error i {
+    color: #dc3545;
+}
+
+.restaurant-name-validation-message.info i {
+    color: #17a2b8;
+}
+
+/* Input validation states */
+.form-control.is-valid {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.form-control.is-invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Image Upload and Preview Styles */
+.image-preview-container {
+    text-align: center;
+    padding: 1rem;
+    border: 2px dashed #dee2e6;
+    border-radius: 0.5rem;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.image-preview-container:hover {
+    border-color: var(--primary-green);
+    background-color: #f4fbea;
+}
+
+.image-preview-container img {
+    border-radius: 0.375rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.image-preview-container img:hover {
+    transform: scale(1.05);
+}
+
+.no-image-placeholder {
+    text-align: center;
+    padding: 2rem;
+    border: 2px dashed #dee2e6;
+    border-radius: 0.5rem;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.no-image-placeholder:hover {
+    border-color: var(--primary-green);
+    background-color: #f4fbea;
+}
+
+.no-image-placeholder i {
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+}
+
+/* File input styling */
+.form-control[type="file"] {
+    padding: 0.5rem;
+    border: 2px dashed #dee2e6;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.form-control[type="file"]:hover {
+    border-color: var(--primary-green);
+    background-color: #f4fbea;
+}
+
+.form-control[type="file"]:focus {
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 0.2rem rgba(148, 216, 45, 0.25);
+}
+
+/* Form text styling */
+.form-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+/* Smart Navbar Styles */
+#mainNavbar {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+    z-index: 1030;
+}
+
+/* Navbar completely hides when scrolling down */
+#mainNavbar.hidden {
+    transform: translateY(-100%);
+}
+
+/* Main content wrapper with dynamic padding */
+.main-content-wrapper {
+    transition: padding-top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 100vh;
+}
+
+/* Mobile-specific navbar behavior */
+@media (max-width: 768px) {
+    #mainNavbar {
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #mainNavbar.hidden {
+        transform: translateY(-100%);
+    }
+
+    /* Faster transitions on mobile for better responsiveness */
+    .main-content-wrapper {
+        transition: padding-top 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Ensure navbar doesn't interfere with mobile content */
+    .navbar-toggler {
+        z-index: 1031;
+    }
+}
+
+/* Tablet-specific navbar behavior */
+@media (min-width: 769px) and (max-width: 1024px) {
+    #mainNavbar {
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #mainNavbar.hidden {
+        transform: translateY(-100%);
+    }
+
+    .main-content-wrapper {
+        transition: padding-top 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+}
+
+/* Ensure smooth navbar transitions */
+.navbar.sticky-top {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+}
+
+/* Smooth scroll behavior for better UX */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Prevent layout shift when navbar hides/shows */
+body {
+    padding-top: 0;
+}
+
+/* Ensure content doesn't jump when navbar appears/disappears */
+.main-content {
+    transition: padding-top 0.3s ease;
+}
+
+/* Debug styles (can be removed in production) */
+.navbar-debug {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    z-index: 9999;
+}

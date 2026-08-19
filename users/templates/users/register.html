@@ -1,0 +1,31 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block title %}Register - FoodOrdering{% endblock %}
+
+{% block content %}
+<!-- Redirect to Login Page -->
+<script>
+    window.location.href = "{% url 'users:login' %}";
+</script>
+
+<!-- Fallback for users with JavaScript disabled -->
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-5 text-center">
+                    <div class="mb-4">
+                        <ion-icon name="arrow-forward-outline" style="font-size: 48px; color: #28a745;"></ion-icon>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-3">Redirecting to Registration</h3>
+                    <p class="text-muted mb-4">You will be redirected to the registration page in a moment.</p>
+                    <a href="{% url 'users:login' %}" class="btn btn-primary">
+                        Go to Registration Page
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

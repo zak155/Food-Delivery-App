@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mzughbor.duckdns.org/food-delivery-pro/sitemap.xml

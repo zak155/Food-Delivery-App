@@ -1,0 +1,137 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block title %}Login & Registration - FoodOrdering{% endblock %}
+
+{% block content %}
+<!-- Main Content -->
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Welcome Section -->
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold text-dark mb-3">Welcome back</h1>
+            </div>
+
+            <div class="row g-5">
+                <!-- Login Form -->
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body p-5">
+                            <h3 class="h4 fw-bold text-dark mb-4">Sign In</h3>
+                            <form method="post" class="login-form">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="login-email" class="form-label fw-medium">Username or Email *</label>
+                                    <input type="text" class="form-control" id="login-email" name="username" placeholder="Enter your username or email" autocomplete="username" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="login-password" class="form-label fw-medium">Password</label>
+                                    <input type="password" class="form-control" id="login-password" name="password" placeholder="Enter your password" autocomplete="current-password" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 btn-lg">
+                                    Continue
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registration Form -->
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body p-5">
+                            <h3 class="h4 fw-bold text-dark mb-4">Create Account</h3>
+                            <p class="text-muted mb-4">Don't have an account?</p>
+                            <form method="post" class="registration-form">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="reg-email" class="form-label fw-medium">Email address *</label>
+                                    <input type="email" class="form-control" id="reg-email" name="email" placeholder="Enter your email" autocomplete="email" required>
+                                    <div id="register-email-message" style="display: none;"></div>
+                                    {% if form.email.errors %}
+                                        <div class="text-danger small">
+                                            {% for error in form.email.errors %}
+                                                <div>{{ error }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="reg-username" class="form-label fw-medium">Username</label>
+                                    <input type="text" class="form-control" id="reg-username" name="username" placeholder="Enter your username" autocomplete="username" required>
+                                    {% if form.username.errors %}
+                                        <div class="text-danger small">
+                                            {% for error in form.username.errors %}
+                                                <div>{{ error }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="reg-password" class="form-label fw-medium">Password</label>
+                                    <input type="password" class="form-control" id="reg-password" name="password1" placeholder="Create password" autocomplete="new-password" required>
+                                    {% if form.password1.errors %}
+                                        <div class="text-danger small">
+                                            {% for error in form.password1.errors %}
+                                                <div>{{ error }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="reg-confirm-password" class="form-label fw-medium">Confirm Password</label>
+                                    <input type="password" class="form-control" id="reg-confirm-password" name="password2" placeholder="Confirm password" autocomplete="new-password" required>
+                                    {% if form.password2.errors %}
+                                        <div class="text-danger small">
+                                            {% for error in form.password2.errors %}
+                                                <div>{{ error }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="mb-4">
+                                    <label for="reg-address" class="form-label fw-medium">Address</label>
+                                    <input type="text" class="form-control" id="reg-address" name="address" placeholder="Enter your address" autocomplete="street-address">
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 btn-lg">
+                                    Sign up now
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OR Divider -->
+            <div class="text-center my-5">
+                <div class="d-flex align-items-center">
+                    <hr class="flex-grow-1">
+                    <span class="px-3 text-muted fw-medium">OR</span>
+                    <hr class="flex-grow-1">
+                </div>
+            </div>
+
+            <!-- Business Application Button -->
+            <div class="text-center mb-5">
+                <a href="{% url 'users:business_registration' %}" class="btn btn-outline-primary btn-lg px-5">
+                    Apply as Business
+                    <ion-icon name="arrow-forward-outline" class="ms-2"></ion-icon>
+                </a>
+            </div>
+
+            <!-- Terms and Privacy -->
+            <div class="text-center">
+                <div class="d-flex justify-content-center align-items-center flex-wrap">
+                    <a href="#" class="text-primary text-decoration-none me-3 mb-2">Terms of Use</a>
+                    <span class="text-muted me-3 mb-2">|</span>
+                    <a href="#" class="text-primary text-decoration-none mb-2">Privacy Policy</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Email Validation JavaScript -->
+<script src="{% static 'js/email-validation.js' %}"></script>
+{% endblock %}

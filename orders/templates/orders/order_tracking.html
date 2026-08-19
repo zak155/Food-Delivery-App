@@ -1,0 +1,861 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block title %}Order Tracking - Order #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Order Header -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary-green text-dark">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0 fw-bold">
+                            <ion-icon name="receipt-outline" class="me-2"></ion-icon>
+                            Order #{{ order.id }}
+                        </h4>
+                        <span class="badge fs-6 px-3 py-2 
+                            {% if order.status == 'pending' %}bg-warning text-dark
+                            {% elif order.status == 'confirmed' %}bg-info text-white
+                            {% elif order.status == 'preparing' %}bg-primary text-white
+                            {% elif order.status == 'ready' %}bg-success text-white
+                            {% elif order.status == 'picked_up' %}bg-warning text-dark
+                            {% elif order.status == 'in_transit' %}bg-primary text-white
+                            {% elif order.status == 'delivered' %}bg-success text-white
+                            {% elif order.status == 'cancelled' %}bg-danger text-white
+                            {% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="fw-bold text-muted mb-2">Order Details</h6>
+                            <p class="mb-1"><strong>Order Date:</strong> {{ order.created_at|date:"F d, Y \a\t g:i A" }}</p>
+                            <p class="mb-1"><strong>Restaurant:</strong> {{ order.restaurant.name|default:"N/A" }}</p>
+                            <p class="mb-1"><strong>Total Amount:</strong> ${{ order.total_amount|floatformat:2 }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold text-muted mb-2">Delivery Information</h6>
+                            <p class="mb-1"><strong>Status:</strong> {{ order.get_status_display }}</p>
+                            <p class="mb-1"><strong>Last Updated:</strong> {{ order.updated_at|date:"F d, Y \a\t g:i A" }}</p>
+                            <p class="mb-0"><strong>Estimated Delivery:</strong> 
+                                {% if order.status == 'delivered' %}
+                                    <span class="text-success">✅ Delivered</span>
+                                {% elif order.status == 'cancelled' %}
+                                    <span class="text-danger">❌ Cancelled</span>
+                                {% elif order.status == 'in_transit' %}
+                                    <span class="text-primary">🛵 10-15 minutes</span>
+                                {% elif order.status == 'picked_up' %}
+                                    <span class="text-warning">🚗 15-20 minutes</span>
+                                {% elif order.status == 'ready' %}
+                                    <span class="text-success">📦 Waiting for pickup</span>
+                                {% elif order.status == 'preparing' %}
+                                    <span class="text-primary">👨‍🍳 20-30 minutes</span>
+                                {% elif order.status == 'confirmed' %}
+                                    <span class="text-info">🍽️ 25-35 minutes</span>
+                                {% elif order.status == 'pending' %}
+                                    <span class="text-warning">⏳ 30-45 minutes</span>
+                                {% else %}
+                                    30-45 minutes
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Progress -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0 fw-bold">
+                        <ion-icon name="time-outline" class="me-2"></ion-icon>
+                        Order Progress
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <!-- Stage 1: Order Placed -->
+                        <div class="timeline-item 
+                            {% if order.status in 'confirmed,preparing,ready,picked_up,in_transit,delivered' %}completed
+                            {% elif order.status == 'pending' %}active
+                            {% endif %}">
+                            <div class="timeline-marker">
+                                <ion-icon name="receipt-outline"></ion-icon>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="fw-bold">Order Placed</h6>
+                                <p class="text-muted mb-0">{{ order.created_at|date:"F d, Y \a\t g:i A" }}</p>
+                                <small class="text-success">✓ Order received and processing</small>
+                            </div>
+                        </div>
+
+                        <!-- Stage 2: Order Confirmed -->
+                        <div class="timeline-item 
+                            {% if order.status in 'preparing,ready,picked_up,in_transit,delivered' %}completed
+                            {% elif order.status == 'confirmed' %}active
+                            {% endif %}">
+                            <div class="timeline-marker">
+                                <ion-icon name="checkmark-circle-outline"></ion-icon>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="fw-bold">Order Confirmed</h6>
+                                <p class="text-muted mb-0">
+                                    {% if order.status in 'confirmed,preparing,ready,picked_up,in_transit,delivered' %}
+                                        Restaurant confirmed your order
+                                    {% elif order.status == 'pending' %}
+                                        Waiting for restaurant confirmation...
+                                    {% endif %}
+                                </p>
+                                {% if order.status == 'confirmed' %}
+                                <small class="text-info">🍽️ Restaurant is about to start preparing</small>
+                                {% elif order.status in 'preparing,ready,picked_up,in_transit,delivered' %}
+                                <small class="text-success">✓ Confirmed and accepted</small>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Stage 3: Preparing -->
+                        <div class="timeline-item 
+                            {% if order.status in 'ready,picked_up,in_transit,delivered' %}completed
+                            {% elif order.status == 'preparing' %}active
+                            {% endif %}">
+                            <div class="timeline-marker">
+                                <ion-icon name="restaurant-outline"></ion-icon>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="fw-bold">Preparing Your Meal</h6>
+                                <p class="text-muted mb-0">
+                                    {% if order.status in 'ready,picked_up,in_transit,delivered' %}
+                                        Meal prepared successfully
+                                    {% elif order.status == 'preparing' %}
+                                        Your meal is being prepared fresh
+                                    {% else %}
+                                        Waiting for preparation to start...
+                                    {% endif %}
+                                </p>
+                                {% if order.status == 'preparing' %}
+                                <small class="text-primary">👨‍🍳 Chef is cooking your order</small>
+                                {% elif order.status in 'ready,picked_up,in_transit,delivered' %}
+                                <small class="text-success">✓ Meal prepared with care</small>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Stage 4: Ready for Pickup -->
+                        <div class="timeline-item 
+                            {% if order.status in 'picked_up,in_transit,delivered' %}completed
+                            {% elif order.status == 'ready' %}active
+                            {% endif %}">
+                            <div class="timeline-marker">
+                                <ion-icon name="bag-check-outline"></ion-icon>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="fw-bold">Ready for Pickup</h6>
+                                <p class="text-muted mb-0">
+                                    {% if order.status in 'picked_up,in_transit,delivered' %}
+                                        Order picked up by delivery
+                                    {% elif order.status == 'ready' %}
+                                        Waiting for delivery pickup
+                                    {% else %}
+                                        Meal will be ready soon...
+                                    {% endif %}
+                                </p>
+                                {% if order.status == 'ready' %}
+                                <small class="text-success">📦 Ready! Waiting for delivery person</small>
+                                {% elif order.status in 'picked_up,in_transit,delivered' %}
+                                <small class="text-success">✓ Successfully picked up</small>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Stage 5: Picked Up -->
+                        <div class="timeline-item 
+                            {% if order.status in 'in_transit,delivered' %}completed
+                            {% elif order.status == 'picked_up' %}active
+                            {% endif %}">
+                            <div class="timeline-marker">
+                                <ion-icon name="car-outline"></ion-icon>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="fw-bold">Picked Up</h6>
+                                <p class="text-muted mb-0">
+                                    {% if order.status in 'in_transit,delivered' %}
+                                        Delivery person has your order
+                                    {% elif order.status == 'picked_up' %}
+                                        Delivery person collected your order
+                                    {% else %}
+                                        Waiting for delivery pickup...
+                                    {% endif %}
+                                </p>
+                                {% if order.status == 'picked_up' %}
+                                <small class="text-warning">🚗 Starting journey to you</small>
+                                {% elif order.status in 'in_transit,delivered' %}
+                                <small class="text-success">✓ Order secured for delivery</small>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Stage 6: In Transit -->
+                        <div class="timeline-item 
+                            {% if order.status == 'delivered' %}completed
+                            {% elif order.status == 'in_transit' %}active
+                            {% endif %}">
+                            <div class="timeline-marker">
+                                <ion-icon name="bicycle-outline"></ion-icon>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="fw-bold">On the Way</h6>
+                                <p class="text-muted mb-0">
+                                    {% if order.status == 'delivered' %}
+                                        Successfully delivered
+                                    {% elif order.status == 'in_transit' %}
+                                        Your order is on its way to you
+                                    {% else %}
+                                        Delivery will start soon...
+                                    {% endif %}
+                                </p>
+                                {% if order.status == 'in_transit' %}
+                                <small class="text-primary">🛵 Delivery in progress - ETA: 10-15 mins</small>
+                                {% elif order.status == 'delivered' %}
+                                <small class="text-success">✓ Journey completed</small>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Stage 7: Delivered -->
+                        <div class="timeline-item 
+                            {% if order.status == 'delivered' %}completed
+                            {% endif %}">
+                            <div class="timeline-marker">
+                                <ion-icon name="home-outline"></ion-icon>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="fw-bold">Delivered</h6>
+                                <p class="text-muted mb-0">
+                                    {% if order.status == 'delivered' %}
+                                        Order delivered successfully! Enjoy your meal! 🎉
+                                    {% else %}
+                                        Your order will be delivered here
+                                    {% endif %}
+                                </p>
+                                {% if order.status == 'delivered' %}
+                                <small class="text-success">✅ Order completed - Thank you for choosing us!</small>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if order.status == 'cancelled' %}
+                        <!-- Cancelled Status -->
+                        <div class="timeline-item cancelled">
+                            <div class="timeline-marker">
+                                <ion-icon name="close-circle-outline"></ion-icon>
+                            </div>
+                            <div class="timeline-content">
+                                <h6 class="fw-bold text-danger">Order Cancelled</h6>
+                                <p class="text-muted mb-0">This order was cancelled</p>
+                                <small class="text-danger">❌ Order processing stopped</small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0 fw-bold">
+                        <ion-icon name="list-outline" class="me-2"></ion-icon>
+                        Order Items
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="border-0 py-3 px-4">Item</th>
+                                    <th class="border-0 py-3 px-4 text-center">Quantity</th>
+                                    <th class="border-0 py-3 px-4 text-center">Price</th>
+                                    <th class="border-0 py-3 px-4 text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order.items.all %}
+                                <tr>
+                                    <td class="py-4 px-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-3">
+                                                <div class="bg-light rounded-2 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                    <ion-icon name="fast-food-outline" style="font-size: 24px; color: #94D82D;"></ion-icon>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <h6 class="fw-bold mb-1">{{ item.meal.name }}</h6>
+                                                <small class="text-muted">{{ item.meal.restaurant.name }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 text-center">
+                                        <span class="fw-bold">{{ item.quantity }}</span>
+                                    </td>
+                                    <td class="py-4 px-4 text-center">
+                                        <span class="fw-bold">${{ item.price|floatformat:2 }}</span>
+                                    </td>
+                                    <td class="py-4 px-4 text-end">
+                                        <span class="fw-bold">${{ item.total_price|floatformat:2 }}</span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-5">
+                                        <ion-icon name="receipt-outline" style="font-size: 48px; color: #ccc;" class="mb-3"></ion-icon>
+                                        <h5>No items found</h5>
+                                        <p>This order doesn't have any items.</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            {% if is_restaurant_owner %}
+            <!-- Restaurant Owner Controls -->
+            {% if order.status == 'pending' %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0 fw-bold">
+                        <ion-icon name="restaurant-outline" class="me-2"></ion-icon>
+                        Action Required - New Order
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <ion-icon name="alert-circle-outline" class="me-2"></ion-icon>
+                        <strong>New order received!</strong> Please confirm or decline this order.
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button id="confirmOrderBtn" class="btn btn-success btn-lg">
+                            <ion-icon name="checkmark-circle-outline" class="me-2"></ion-icon>
+                            Confirm Order
+                        </button>
+                        <button id="declineOrderBtn" class="btn btn-danger btn-lg">
+                            <ion-icon name="close-circle-outline" class="me-2"></ion-icon>
+                            Decline Order
+                        </button>
+                    </div>
+                    <div id="statusMessage" class="mt-3"></div>
+                </div>
+            </div>
+            {% elif order.status == 'confirmed' %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0 fw-bold">
+                        <ion-icon name="restaurant-outline" class="me-2"></ion-icon>
+                        Ready to Start Cooking?
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <ion-icon name="information-circle-outline" class="me-2"></ion-icon>
+                        <strong>Order confirmed.</strong> Start preparing when you're ready.
+                    </div>
+                    <button id="startPreparingBtn" class="btn btn-primary btn-lg">
+                        <ion-icon name="restaurant-outline" class="me-2"></ion-icon>
+                        Start Preparing
+                    </button>
+                    <div id="statusMessage" class="mt-3"></div>
+                </div>
+            </div>
+            {% elif order.status == 'preparing' %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0 fw-bold">
+                        <ion-icon name="restaurant-outline" class="me-2"></ion-icon>
+                        Cooking in Progress
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-primary">
+                        <ion-icon name="information-circle-outline" class="me-2"></ion-icon>
+                        <strong>Order is being prepared.</strong> Mark as ready when the meal is finished and ready for pickup.
+                    </div>
+                    <button id="markReadyBtn" class="btn btn-success btn-lg">
+                        <ion-icon name="checkmark-circle-outline" class="me-2"></ion-icon>
+                        Mark Order as Ready for Pickup
+                    </button>
+                    <div id="statusMessage" class="mt-3"></div>
+                </div>
+            </div>
+            {% elif order.status == 'ready' %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0 fw-bold">
+                        <ion-icon name="bag-check-outline" class="me-2"></ion-icon>
+                        Order Ready for Pickup
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success">
+                        <ion-icon name="checkmark-circle-outline" class="me-2"></ion-icon>
+                        <strong>Great job!</strong> Your order is ready and waiting for delivery pickup.
+                    </div>
+                    <p class="text-muted">No further action needed. The delivery team will be notified.</p>
+                </div>
+            </div>
+            {% elif order.status in 'picked_up,in_transit,delivered' %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0 fw-bold">
+                        <ion-icon name="information-circle-outline" class="me-2"></ion-icon>
+                        Order Status Update
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <ion-icon name="information-circle-outline" class="me-2"></ion-icon>
+                        <strong>Order is now with delivery.</strong> 
+                        {% if order.status == 'picked_up' %}
+                            Delivery person has picked up the order.
+                        {% elif order.status == 'in_transit' %}
+                            Order is on the way to customer.
+                        {% elif order.status == 'delivered' %}
+                            Order successfully delivered! 🎉
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endif %}
+
+            {% if user.role == 'delivery' and order.status in 'ready,picked_up,in_transit' %}
+            <!-- Delivery Person Controls -->
+            {% if order.status == 'ready' %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0 fw-bold">
+                        <ion-icon name="car-outline" class="me-2"></ion-icon>
+                        Ready for Pickup
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success">
+                        <ion-icon name="checkmark-circle-outline" class="me-2"></ion-icon>
+                        <strong>Order is ready!</strong> Accept this delivery to begin pickup.
+                    </div>
+                    <button id="acceptDeliveryBtn" class="btn btn-primary btn-lg">
+                        <ion-icon name="checkmark-circle-outline" class="me-2"></ion-icon>
+                        Accept Delivery
+                    </button>
+                    <div id="deliveryStatusMessage" class="mt-3"></div>
+                </div>
+            </div>
+            {% elif order.status == 'picked_up' %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0 fw-bold">
+                        <ion-icon name="car-outline" class="me-2"></ion-icon>
+                        Start Journey
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <ion-icon name="information-circle-outline" class="me-2"></ion-icon>
+                        <strong>Order picked up!</strong> Mark when you start heading to customer.
+                    </div>
+                    <button id="onTheWayBtn" class="btn btn-primary btn-lg">
+                        <ion-icon name="bicycle-outline" class="me-2"></ion-icon>
+                        On the Way
+                    </button>
+                    <div id="deliveryStatusMessage" class="mt-3"></div>
+                </div>
+            </div>
+            {% elif order.status == 'in_transit' %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0 fw-bold">
+                        <ion-icon name="bicycle-outline" class="me-2"></ion-icon>
+                        Delivery in Progress
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-primary">
+                        <ion-icon name="information-circle-outline" class="me-2"></ion-icon>
+                        <strong>On the way!</strong> Mark as delivered when you reach the customer.
+                    </div>
+                    <button id="deliveredBtn" class="btn btn-success btn-lg">
+                        <ion-icon name="home-outline" class="me-2"></ion-icon>
+                        Mark as Delivered
+                    </button>
+                    <div id="deliveryStatusMessage" class="mt-3"></div>
+                </div>
+            </div>
+            {% endif %}
+            {% endif %}
+
+            <!-- Order Summary -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="fw-bold text-muted mb-3">Order Summary</h6>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <span>${{ order.total_amount|floatformat:2 }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Delivery Fee:</span>
+                                <span class="text-success">Free</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Tax:</span>
+                                <span>$0.00</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold fs-5">Total:</span>
+                                <span class="fw-bold fs-5 text-primary">${{ order.total_amount|floatformat:2 }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold text-muted mb-3">Need Help?</h6>
+                            <p class="text-muted mb-3">If you have any questions about your order, please contact us.</p>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'users:home' %}" class="btn btn-outline-primary">
+                                    <ion-icon name="home-outline" class="me-1"></ion-icon>
+                                    Back to Home
+                                </a>
+                                {% if not is_restaurant_owner %}
+                                <a href="{% url 'orders:cart' %}" class="btn btn-primary">
+                                    <ion-icon name="cart-outline" class="me-1"></ion-icon>
+                                    View Cart
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+    padding-left: 30px;
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -22px;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    background: white;
+    border: 2px solid #dee2e6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.timeline-item.completed .timeline-marker {
+    background: #28a745;
+    border-color: #28a745;
+    color: white;
+}
+
+.timeline-item.active .timeline-marker {
+    background: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.timeline-content h6 {
+    margin-bottom: 5px;
+}
+
+.timeline-item.completed .timeline-content h6 {
+    color: #28a745;
+}
+
+.timeline-item.active .timeline-content h6 {
+    color: #007bff;
+}
+
+.timeline-item.cancelled .timeline-marker {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.card-header.bg-primary-green {
+    background-color: #94D82D !important;
+}
+
+.badge.bg-warning {
+    background-color: #ffc107 !important;
+}
+
+.badge.bg-info {
+    background-color: #17a2b8 !important;
+}
+
+.badge.bg-success {
+    background-color: #28a745 !important;
+}
+
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+}
+</style>
+
+{% if is_restaurant_owner %}
+<!-- Add CSRF token for JavaScript -->
+{% csrf_token %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmOrderBtn = document.getElementById('confirmOrderBtn');
+    const declineOrderBtn = document.getElementById('declineOrderBtn');
+    const startPreparingBtn = document.getElementById('startPreparingBtn');
+    const markReadyBtn = document.getElementById('markReadyBtn');
+    const statusMessage = document.getElementById('statusMessage');
+    
+    // Helper function to update order status
+    function updateOrderStatus(targetStatus, successMessage, buttonElement, loadingText) {
+        const orderId = {{ order.id }};
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        // Disable button and show loading state
+        buttonElement.disabled = true;
+        buttonElement.innerHTML = loadingText;
+        
+        fetch(`/orders/restaurant-update-status/${orderId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                status: targetStatus
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                statusMessage.innerHTML = `
+                    <div class="alert alert-success">
+                        <ion-icon name="checkmark-circle-outline" class="me-2"></ion-icon>
+                        ${successMessage}
+                    </div>
+                `;
+                buttonElement.style.display = 'none';
+                
+                // Refresh page after 2 seconds to show updated status
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                throw new Error(data.error || 'Unknown error');
+            }
+        })
+        .catch(error => {
+            statusMessage.innerHTML = `
+                <div class="alert alert-danger">
+                    <ion-icon name="alert-circle-outline" class="me-2"></ion-icon>
+                    Error: ${error.message}
+                </div>
+            `;
+            // Re-enable button
+            buttonElement.disabled = false;
+            buttonElement.innerHTML = buttonElement.getAttribute('data-original-text');
+        });
+    }
+    
+    // Confirm Order
+    if (confirmOrderBtn) {
+        confirmOrderBtn.setAttribute('data-original-text', confirmOrderBtn.innerHTML);
+        confirmOrderBtn.addEventListener('click', function() {
+            updateOrderStatus(
+                'confirmed',
+                'Order confirmed! You can now start preparing.',
+                confirmOrderBtn,
+                '<ion-icon name="hourglass-outline" class="me-2"></ion-icon>Confirming...'
+            );
+        });
+    }
+    
+    // Decline Order
+    if (declineOrderBtn) {
+        declineOrderBtn.setAttribute('data-original-text', declineOrderBtn.innerHTML);
+        declineOrderBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to decline this order?')) {
+                updateOrderStatus(
+                    'cancelled',
+                    'Order has been declined.',
+                    declineOrderBtn,
+                    '<ion-icon name="hourglass-outline" class="me-2"></ion-icon>Declining...'
+                );
+            }
+        });
+    }
+    
+    // Start Preparing
+    if (startPreparingBtn) {
+        startPreparingBtn.setAttribute('data-original-text', startPreparingBtn.innerHTML);
+        startPreparingBtn.addEventListener('click', function() {
+            updateOrderStatus(
+                'preparing',
+                'Started preparing! Mark as ready when finished.',
+                startPreparingBtn,
+                '<ion-icon name="hourglass-outline" class="me-2"></ion-icon>Starting...'
+            );
+        });
+    }
+    
+    // Mark Ready
+    if (markReadyBtn) {
+        markReadyBtn.setAttribute('data-original-text', markReadyBtn.innerHTML);
+        markReadyBtn.addEventListener('click', function() {
+            updateOrderStatus(
+                'ready',
+                'Order marked as ready! Delivery personnel will be notified.',
+                markReadyBtn,
+                '<ion-icon name="hourglass-outline" class="me-2"></ion-icon>Updating...'
+            );
+        });
+    }
+});
+</script>
+{% endif %}
+
+{% if user.role == 'delivery' and order.status in 'ready,picked_up,in_transit' %}
+<!-- Add CSRF token for Delivery JavaScript -->
+{% csrf_token %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const acceptDeliveryBtn = document.getElementById('acceptDeliveryBtn');
+    const onTheWayBtn = document.getElementById('onTheWayBtn');
+    const deliveredBtn = document.getElementById('deliveredBtn');
+    const deliveryStatusMessage = document.getElementById('deliveryStatusMessage');
+    
+    // Helper function to update delivery status
+    function updateDeliveryStatus(endpoint, successMessage, buttonElement, loadingText) {
+        const orderId = {{ order.id }};
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        // Disable button and show loading state
+        buttonElement.disabled = true;
+        buttonElement.innerHTML = loadingText;
+        
+        fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                deliveryStatusMessage.innerHTML = `
+                    <div class="alert alert-success">
+                        <ion-icon name="checkmark-circle-outline" class="me-2"></ion-icon>
+                        ${successMessage}
+                    </div>
+                `;
+                buttonElement.style.display = 'none';
+                
+                // Refresh page after 2 seconds to show updated status
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                throw new Error(data.error || 'Unknown error');
+            }
+        })
+        .catch(error => {
+            deliveryStatusMessage.innerHTML = `
+                <div class="alert alert-danger">
+                    <ion-icon name="alert-circle-outline" class="me-2"></ion-icon>
+                    Error: ${error.message}
+                </div>
+            `;
+            // Re-enable button
+            buttonElement.disabled = false;
+            buttonElement.innerHTML = buttonElement.getAttribute('data-original-text');
+        });
+    }
+    
+    // Accept Delivery
+    if (acceptDeliveryBtn) {
+        acceptDeliveryBtn.setAttribute('data-original-text', acceptDeliveryBtn.innerHTML);
+        acceptDeliveryBtn.addEventListener('click', function() {
+            updateDeliveryStatus(
+                `/orders/accept/${{ order.id }}/`,
+                'Delivery accepted! Head to restaurant for pickup.',
+                acceptDeliveryBtn,
+                '<ion-icon name="hourglass-outline" class="me-2"></ion-icon>Accepting...'
+            );
+        });
+    }
+    
+    // On the Way
+    if (onTheWayBtn) {
+        onTheWayBtn.setAttribute('data-original-text', onTheWayBtn.innerHTML);
+        onTheWayBtn.addEventListener('click', function() {
+            updateDeliveryStatus(
+                `/orders/update-status/${{ order.id }}/`,
+                'Status updated! On the way to customer.',
+                onTheWayBtn,
+                '<ion-icon name="hourglass-outline" class="me-2"></ion-icon>Updating...'
+            );
+        });
+    }
+    
+    // Delivered
+    if (deliveredBtn) {
+        deliveredBtn.setAttribute('data-original-text', deliveredBtn.innerHTML);
+        deliveredBtn.addEventListener('click', function() {
+            if (confirm('Mark this order as delivered?')) {
+                updateDeliveryStatus(
+                    `/orders/update-status/${{ order.id }}/`,
+                    'Order marked as delivered! Great job! 🎉',
+                    deliveredBtn,
+                    '<ion-icon name="hourglass-outline" class="me-2"></ion-icon>Delivering...'
+                );
+            }
+        });
+    }
+});
+</script>
+{% endif %}
+
+{% endblock %}

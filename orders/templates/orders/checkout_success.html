@@ -1,0 +1,395 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block title %}Order Confirmed - FoodOrdering{% endblock %}
+
+{% block content %}
+<!-- Main Content -->
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Success Header -->
+            <div class="text-center mb-5">
+                <div class="success-icon mb-4">
+                    <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                        <ion-icon name="checkmark" size="large" class="text-white" style="font-size: 48px;"></ion-icon>
+                    </div>
+                </div>
+                <h1 class="display-4 fw-bold text-dark mb-3">Order Confirmed!</h1>
+                <p class="lead text-muted">Thank you for your order. We'll send you a confirmation email shortly.</p>
+            </div>
+
+            <!-- Order Details Card -->
+            <div class="card border-0 shadow-sm mb-5">
+                <div class="card-header bg-light">
+                    <h5 class="fw-bold text-dark mb-0">
+                        <ion-icon name="receipt-outline" class="me-2"></ion-icon>
+                        Order Details
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="fw-bold text-muted">Order Number</h6>
+                            <p class="fw-bold text-dark fs-5">#{{ order.id|default:"FO-001234" }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="fw-bold text-muted">Order Date</h6>
+                            <p class="fw-bold text-dark">{{ order.created_at|date:"F d, Y"|default:"January 15, 2024" }}</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="fw-bold text-muted">Estimated Delivery</h6>
+                            <p class="fw-bold text-success">{{ order.estimated_delivery|default:"30-45 minutes" }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="fw-bold text-muted">Payment Method</h6>
+                            <p class="fw-bold text-dark">{{ order.payment_method|default:"Credit Card" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="card border-0 shadow-sm mb-5">
+                <div class="card-header bg-light">
+                    <h5 class="fw-bold text-dark mb-0">
+                        <ion-icon name="fast-food-outline" class="me-2"></ion-icon>
+                        Order Items
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    {% for item in order_items %}
+                    <div class="d-flex align-items-center p-4 border-bottom">
+                        <div class="me-3">
+                            {% if item.meal.image %}
+                            <img src="{{ item.meal.image.url }}" alt="{{ item.meal.name }}" class="rounded-2" style="width: 60px; height: 60px; object-fit: cover;">
+                            {% else %}
+                            <div class="bg-light rounded-2 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                <ion-icon name="fast-food-outline" style="font-size: 30px; color: #94D82D;"></ion-icon>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="fw-bold mb-1">{{ item.meal.name }}</h6>
+                            <small class="text-muted">{{ item.meal.restaurant.name }}</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="fw-bold">${{ item.total_price }}</span>
+                            <small class="text-muted d-block">Qty: {{ item.quantity }}</small>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="p-4 text-center text-muted">
+                        <p>No items found</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Delivery Information -->
+            <div class="card border-0 shadow-sm mb-5">
+                <div class="card-header bg-light">
+                    <h5 class="fw-bold text-dark mb-0">
+                        <ion-icon name="location-outline" class="me-2"></ion-icon>
+                        Delivery Information
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="fw-bold text-muted">Delivery Address</h6>
+                            <p class="fw-bold text-dark">{{ order.delivery_address|default:"123 Main Street, City, State 12345" }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="fw-bold text-muted">Contact Number</h6>
+                            <p class="fw-bold text-dark">{{ order.contact_phone|default:"+1 (555) 123-4567" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Status Timeline (aligned with tracking page) -->
+            <div class="card border-0 shadow-sm mb-5">
+                <div class="card-header bg-light">
+                    <h5 class="fw-bold text-dark mb-0">
+                        <ion-icon name="time-outline" class="me-2"></ion-icon>
+                        Order Status
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="timeline">
+                        <!-- Placed -->
+                        <div class="timeline-item 
+                            {% if order.status in 'confirmed,preparing,ready,picked_up,in_transit,delivered' %}completed
+                            {% elif order.status == 'pending' %}active
+                            {% endif %}">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h6 class="fw-bold">Order Placed</h6>
+                                <p class="text-muted mb-0">{{ order.created_at|date:"F d, Y \\a\\t g:i A" }}</p>
+                                <small class="text-success">✓ Order received</small>
+                            </div>
+                        </div>
+
+                        <!-- Confirmed -->
+                        <div class="timeline-item 
+                            {% if order.status in 'preparing,ready,picked_up,in_transit,delivered' %}completed
+                            {% elif order.status == 'confirmed' %}active
+                            {% endif %}">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h6 class="fw-bold">Order Confirmed</h6>
+                                <p class="text-muted mb-0">
+                                    {% if order.status in 'confirmed,preparing,ready,picked_up,in_transit,delivered' %}
+                                        Restaurant confirmed your order
+                                    {% else %}
+                                        Waiting for confirmation...
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Preparing -->
+                        <div class="timeline-item 
+                            {% if order.status in 'ready,picked_up,in_transit,delivered' %}completed
+                            {% elif order.status == 'preparing' %}active
+                            {% endif %}">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h6 class="fw-bold">Preparing</h6>
+                                <p class="text-muted mb-0">
+                                    {% if order.status == 'preparing' %}Your order is being prepared{% elif order.status in 'ready,picked_up,in_transit,delivered' %}Meal prepared{% else %}Waiting to start...{% endif %}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Ready -->
+                        <div class="timeline-item 
+                            {% if order.status in 'picked_up,in_transit,delivered' %}completed
+                            {% elif order.status == 'ready' %}active
+                            {% endif %}">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h6 class="fw-bold">Ready for Pickup</h6>
+                                <p class="text-muted mb-0">
+                                    {% if order.status == 'ready' %}Waiting for pickup{% elif order.status in 'picked_up,in_transit,delivered' %}Picked up{% else %}Almost ready...{% endif %}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Picked Up / In Transit -->
+                        <div class="timeline-item 
+                            {% if order.status == 'delivered' %}completed
+                            {% elif order.status in 'picked_up,in_transit' %}active
+                            {% endif %}">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h6 class="fw-bold">On the Way</h6>
+                                <p class="text-muted mb-0">
+                                    {% if order.status == 'picked_up' %}Picked up by delivery{% elif order.status == 'in_transit' %}In transit to you{% elif order.status == 'delivered' %}Arrived{% else %}Awaiting pickup{% endif %}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Delivered / Cancelled -->
+                        <div class="timeline-item {% if order.status == 'delivered' %}completed{% elif order.status == 'cancelled' %}cancelled{% endif %}">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h6 class="fw-bold">{% if order.status == 'cancelled' %}Cancelled{% else %}Delivered{% endif %}</h6>
+                                <p class="text-muted mb-0">
+                                    {% if order.status == 'delivered' %}Order delivered successfully!{% elif order.status == 'cancelled' %}This order was cancelled{% else %}Will be delivered soon{% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="text-center">
+                <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
+                    <a href="{% url 'orders:order_tracking' order.id|default:'1' %}" class="btn btn-primary btn-lg">
+                        <ion-icon name="location-outline" class="me-2"></ion-icon>
+                        Track Order
+                    </a>
+                    <a href="{% url 'meals:meal_list' %}" class="btn btn-outline-primary btn-lg">
+                        <ion-icon name="restaurant-outline" class="me-2"></ion-icon>
+                        Order Again
+                    </a>
+                    <a href="{% url 'users:home' %}" class="btn btn-outline-secondary btn-lg">
+                        <ion-icon name="home-outline" class="me-2"></ion-icon>
+                        Back to Home
+                    </a>
+                </div>
+            </div>
+
+            <!-- Support Information -->
+            <div class="text-center mt-5">
+                <div class="card border-0 bg-light">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold text-dark mb-3">Need Help?</h6>
+                        <p class="text-muted mb-3">If you have any questions about your order, please contact our support team.</p>
+                        <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
+                            <a href="tel:+15551234567" class="btn btn-outline-primary">
+                                <ion-icon name="call-outline" class="me-2"></ion-icon>
+                                Call Support
+                            </a>
+                            <a href="mailto:support@foodordering.com" class="btn btn-outline-primary">
+                                <ion-icon name="mail-outline" class="me-2"></ion-icon>
+                                Email Support
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Page Styles -->
+<style>
+    .success-icon {
+        animation: bounceIn 0.6s ease-out;
+    }
+
+    @keyframes bounceIn {
+        0% {
+            opacity: 0;
+            transform: scale(0.3);
+        }
+        50% {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        70% {
+            transform: scale(0.9);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e9ecef;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 30px;
+    }
+
+    .timeline-marker {
+        position: absolute;
+        left: -22px;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 3px solid #fff;
+        box-shadow: 0 0 0 3px #e9ecef;
+    }
+
+    .timeline-item.completed .timeline-marker {
+        box-shadow: 0 0 0 3px #28a745;
+    }
+
+    .timeline-item.active .timeline-marker {
+        box-shadow: 0 0 0 3px #ffc107;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+        }
+    }
+
+    .timeline-content {
+        margin-left: 20px;
+    }
+
+    /* Simple Dark Mode Text Fixes */
+    @media (prefers-color-scheme: dark) {
+        .text-dark {
+            color: #ffffff !important;
+        }
+        
+        .card {
+            background-color: #1e1e1e;
+            border-color: #333;
+            color: #e0e0e0;
+        }
+        
+        .card-header.bg-light {
+            background-color: #2a2a2a !important;
+        }
+        
+        .bg-light {
+            background-color: #374151 !important;
+        }
+        
+        .timeline::before {
+            background: #444;
+        }
+        
+        .timeline-marker {
+            border-color: #1e1e1e;
+        }
+    }
+
+    [data-bs-theme="dark"] .text-dark {
+        color: #ffffff !important;
+    }
+
+    [data-bs-theme="dark"] .card {
+        background-color: #1e1e1e;
+        border-color: #333;
+        color: #e0e0e0;
+    }
+
+    [data-bs-theme="dark"] .card-header.bg-light {
+        background-color: #2a2a2a !important;
+    }
+
+    [data-bs-theme="dark"] .bg-light {
+        background-color: #374151 !important;
+    }
+</style>
+
+<!-- Success Page JS -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-refresh order status every 30 seconds
+        setInterval(function() {
+            // In a real application, you would make an AJAX call to check order status
+            console.log('Checking order status...');
+        }, 30000);
+        
+        // Show success animation
+        const successIcon = document.querySelector('.success-icon');
+        if (successIcon) {
+            successIcon.style.animation = 'bounceIn 0.6s ease-out';
+        }
+    });
+</script>
+{% endblock %}

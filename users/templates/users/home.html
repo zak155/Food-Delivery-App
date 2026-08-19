@@ -1,0 +1,846 @@
+{% extends 'users/base.html' %}
+{% load static %}
+{% block title %}Home - FoodOrdering{% endblock %}
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold text-dark mb-4">
+                    Delicious Food Delivered to Your Door
+                </h1>
+                <p class="lead text-muted mb-4">
+          Order from your favorite restaurants and enjoy fresh, delicious meals
+          delivered right to your doorstep. Fast, reliable, and always fresh.
+        </p>
+        <div class="d-flex flex-column flex-sm-row gap-3 mb-4 mb-lg-0">
+          <a
+            href="{% url 'meals:meal_list' %}"
+            class="btn btn-primary btn-lg px-4"
+          >
+                        <ion-icon name="restaurant-outline" class="me-2"></ion-icon>
+                        Order Now
+                    </a>
+                    <a href="#restaurants" class="btn btn-outline-primary btn-lg px-4">
+                        <ion-icon name="search-outline" class="me-2"></ion-icon>
+                        Browse Restaurants
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-image text-center">
+          <img
+            src="{% static 'img/hero-food.jpg' %}"
+            alt="Delicious Food"
+            class="img-fluid rounded-3"
+            style="max-height: 500px"
+          />
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Restaurants Carousel -->
+<section id="restaurants" class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold text-dark mb-3">Featured Restaurants</h2>
+      <p class="lead text-muted">
+        Discover amazing food from top-rated restaurants in your area
+      </p>
+        </div>
+        
+    {% if featured_restaurants %}
+    
+    <!-- DESKTOP CAROUSEL - Only for laptops and bigger screens -->
+    <div
+      id="desktopCarousel"
+      class="carousel slide d-none d-lg-block"
+      data-bs-ride="carousel"
+      data-bs-interval="5000"
+    >
+      <div class="carousel-inner" style="padding: 0 3rem;">
+        <!-- Slide 1: Restaurants 1-3 -->
+        <div class="carousel-item active">
+          <div class="row g-4 justify-content-center">
+            {% for restaurant in featured_restaurants|slice:":3" %}
+            <div class="col-lg-4 col-md-6">
+              <div class="card h-100 restaurant-card">
+                {% if restaurant.logo %}
+                <img
+                  src="{{ restaurant.logo.url }}"
+                  class="card-img-top"
+                  alt="{{ restaurant.name }}"
+                  style="height: 200px; object-fit: cover"
+                />
+                {% else %}
+                <div
+                  class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                  style="height: 200px"
+                >
+                  <ion-icon
+                    name="restaurant-outline"
+                    style="font-size: 60px; color: #94d82d"
+                  ></ion-icon>
+                </div>
+                {% endif %}
+                <div class="card-body d-flex flex-column text-center">
+                  <h5 class="card-title fw-bold mb-2">
+                    {{ restaurant.name }}
+                  </h5>
+                  <p class="card-text text-muted mb-3 small">
+                    {{ restaurant.description|truncatewords:12|default:"Delicious food and great service." }}
+                  </p>
+                  <div
+                    class="d-flex align-items-center justify-content-center mb-3"
+                  >
+                            <div class="rating me-2">
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                            </div>
+                    <span class="text-muted small">(4.5)</span>
+                        </div>
+                        <div class="mt-auto">
+                    <a
+                      href="{% url 'restaurants:restaurant_detail' restaurant.id %}"
+                      class="btn btn-primary btn-sm px-3"
+                    >
+                      <ion-icon
+                        name="restaurant-outline"
+                        class="me-1"
+                      ></ion-icon>
+                                View Menu
+                            </a>
+                        </div>
+                    </div>
+              </div>
+            </div>
+            {% endfor %}
+                </div>
+            </div>
+
+        <!-- Slide 2: Restaurants 2-4 -->
+        <div class="carousel-item">
+          <div class="row g-4 justify-content-center">
+            {% for restaurant in featured_restaurants|slice:"1:4" %}
+            <div class="col-lg-4 col-md-6">
+              <div class="card h-100 restaurant-card">
+                {% if restaurant.logo %}
+                <img
+                  src="{{ restaurant.logo.url }}"
+                  class="card-img-top"
+                  alt="{{ restaurant.name }}"
+                  style="height: 200px; object-fit: cover"
+                />
+                {% else %}
+                <div
+                  class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                  style="height: 200px"
+                >
+                  <ion-icon
+                    name="restaurant-outline"
+                    style="font-size: 60px; color: #94d82d"
+                  ></ion-icon>
+                </div>
+                {% endif %}
+                <div class="card-body d-flex flex-column text-center">
+                  <h5 class="card-title fw-bold mb-2">
+                    {{ restaurant.name }}
+                  </h5>
+                  <p class="card-text text-muted mb-3 small">
+                    {{ restaurant.description|truncatewords:12|default:"Delicious food and great service." }}
+                  </p>
+                  <div
+                    class="d-flex align-items-center justify-content-center mb-3"
+                  >
+                            <div class="rating me-2">
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                            </div>
+                    <span class="text-muted small">(4.5)</span>
+                        </div>
+                        <div class="mt-auto">
+                    <a
+                      href="{% url 'restaurants:restaurant_detail' restaurant.id %}"
+                      class="btn btn-primary btn-sm px-3"
+                    >
+                      <ion-icon
+                        name="restaurant-outline"
+                        class="me-1"
+                      ></ion-icon>
+                                View Menu
+                            </a>
+                        </div>
+                    </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Slide 3: Restaurants 3-5 -->
+        <div class="carousel-item">
+          <div class="row g-4 justify-content-center">
+            {% for restaurant in featured_restaurants|slice:"2:5" %}
+            <div class="col-lg-4 col-md-6">
+              <div class="card h-100 restaurant-card">
+                {% if restaurant.logo %}
+                <img
+                  src="{{ restaurant.logo.url }}"
+                  class="card-img-top"
+                  alt="{{ restaurant.name }}"
+                  style="height: 200px; object-fit: cover"
+                />
+                {% else %}
+                <div
+                  class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                  style="height: 200px"
+                >
+                  <ion-icon
+                    name="restaurant-outline"
+                    style="font-size: 60px; color: #94d82d"
+                  ></ion-icon>
+                </div>
+                {% endif %}
+                <div class="card-body d-flex flex-column text-center">
+                  <h5 class="card-title fw-bold mb-2">
+                    {{ restaurant.name }}
+                  </h5>
+                  <p class="card-text text-muted mb-3 small">
+                    {{ restaurant.description|truncatewords:12|default:"Delicious food and great service." }}
+                  </p>
+                  <div
+                    class="d-flex align-items-center justify-content-center mb-3"
+                  >
+                    <div class="rating me-2">
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                    </div>
+                    <span class="text-muted small">(4.5)</span>
+                  </div>
+                  <div class="mt-auto">
+                    <a
+                      href="{% url 'restaurants:restaurant_detail' restaurant.id %}"
+                      class="btn btn-primary btn-sm px-3"
+                    >
+                      <ion-icon
+                        name="restaurant-outline"
+                        class="me-1"
+                      ></ion-icon>
+                      View Menu
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+                </div>
+            </div>
+
+        <!-- Slide 4: Restaurants 4-6 -->
+        <div class="carousel-item">
+          <div class="row g-4 justify-content-center">
+            {% for restaurant in featured_restaurants|slice:"3:6" %}
+            <div class="col-lg-4 col-md-6">
+              <div class="card h-100 restaurant-card">
+                {% if restaurant.logo %}
+                <img
+                  src="{{ restaurant.logo.url }}"
+                  class="card-img-top"
+                  alt="{{ restaurant.name }}"
+                  style="height: 200px; object-fit: cover"
+                />
+                {% else %}
+                <div
+                  class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                  style="height: 200px"
+                >
+                  <ion-icon
+                    name="restaurant-outline"
+                    style="font-size: 60px; color: #94d82d"
+                  ></ion-icon>
+                </div>
+                {% endif %}
+                <div class="card-body d-flex flex-column text-center">
+                  <h5 class="card-title fw-bold mb-2">
+                    {{ restaurant.name }}
+                  </h5>
+                  <p class="card-text text-muted mb-3 small">
+                    {{ restaurant.description|truncatewords:12|default:"Delicious food and great service." }}
+                  </p>
+                  <div
+                    class="d-flex align-items-center justify-content-center mb-3"
+                  >
+                            <div class="rating me-2">
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                            </div>
+                    <span class="text-muted small">(4.5)</span>
+                        </div>
+                        <div class="mt-auto">
+                    <a
+                      href="{% url 'restaurants:restaurant_detail' restaurant.id %}"
+                      class="btn btn-primary btn-sm px-3"
+                    >
+                      <ion-icon
+                        name="restaurant-outline"
+                        class="me-1"
+                      ></ion-icon>
+                                View Menu
+                            </a>
+                        </div>
+                    </div>
+              </div>
+            </div>
+            {% endfor %}
+                </div>
+            </div>
+
+      </div>
+
+      <!-- Desktop Controls -->
+      <button
+        class="carousel-control-prev"
+        type="button"
+        data-bs-target="#desktopCarousel"
+        data-bs-slide="prev"
+      >
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button
+        class="carousel-control-next"
+        type="button"
+        data-bs-target="#desktopCarousel"
+        data-bs-slide="next"
+      >
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+
+      <!-- Desktop Indicators -->
+      <div class="carousel-indicators">
+        {% for i in "1234" %}
+        <button
+          type="button"
+          data-bs-target="#desktopCarousel"
+          data-bs-slide-to="{{ forloop.counter0 }}"
+          {% if forloop.first %}class="active" aria-current="true"{% endif %}
+          aria-label="Slide {{ forloop.counter }}"
+        ></button>
+        {% endfor %}
+                </div>
+            </div>
+
+    <!-- MOBILE CAROUSEL - One restaurant at a time, slide one by one -->
+    <div
+      id="mobileCarousel"
+      class="carousel slide d-block d-lg-none"
+      data-bs-ride="carousel"
+      data-bs-interval="5000"
+    >
+      <div class="carousel-inner">
+        {% for restaurant in featured_restaurants %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+          <div class="row justify-content-center">
+            <div class="col-10 col-sm-8 col-md-6">
+              <div class="card h-100 restaurant-card">
+                {% if restaurant.logo %}
+                <img
+                  src="{{ restaurant.logo.url }}"
+                  class="card-img-top"
+                  alt="{{ restaurant.name }}"
+                  style="height: 200px; object-fit: cover"
+                />
+                {% else %}
+                <div
+                  class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                  style="height: 200px"
+                >
+                  <ion-icon
+                    name="restaurant-outline"
+                    style="font-size: 60px; color: #94d82d"
+                  ></ion-icon>
+                </div>
+                {% endif %}
+                <div class="card-body d-flex flex-column text-center">
+                  <h5 class="card-title fw-bold mb-2">
+                    {{ restaurant.name }}
+                  </h5>
+                  <p class="card-text text-muted mb-3 small">
+                    {{ restaurant.description|truncatewords:12|default:"Delicious food and great service." }}
+                  </p>
+                  <div
+                    class="d-flex align-items-center justify-content-center mb-3"
+                  >
+                            <div class="rating me-2">
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                      <ion-icon
+                        name="star"
+                        class="text-warning"
+                        style="font-size: 14px"
+                      ></ion-icon>
+                            </div>
+                    <span class="text-muted small">(4.5)</span>
+                        </div>
+                        <div class="mt-auto">
+                    <a
+                      href="{% url 'restaurants:restaurant_detail' restaurant.id %}"
+                      class="btn btn-primary btn-sm px-3"
+                    >
+                      <ion-icon
+                        name="restaurant-outline"
+                        class="me-1"
+                      ></ion-icon>
+                                View Menu
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Mobile Controls -->
+      <button
+        class="carousel-control-prev"
+        type="button"
+        data-bs-target="#mobileCarousel"
+        data-bs-slide="prev"
+      >
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button
+        class="carousel-control-next"
+        type="button"
+        data-bs-target="#mobileCarousel"
+        data-bs-slide="next"
+      >
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+
+      <!-- Mobile Indicators -->
+      <div class="carousel-indicators">
+        {% for restaurant in featured_restaurants %}
+        <button
+          type="button"
+          data-bs-target="#mobileCarousel"
+          data-bs-slide-to="{{ forloop.counter0 }}"
+          {% if forloop.first %}class="active" aria-current="true"{% endif %}
+          aria-label="Slide {{ forloop.counter }}"
+        ></button>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% endif %}
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold text-dark mb-3">Why Choose FoodOrdering?</h2>
+      <p class="lead text-muted">
+        We make food ordering simple, fast, and delicious
+      </p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="text-center">
+          <div
+            class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+            style="width: 80px; height: 80px"
+          >
+                        <ion-icon name="flash-outline" size="large"></ion-icon>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-3">Fast Delivery</h5>
+          <p class="text-muted">
+            Get your food delivered in 30-45 minutes with our reliable delivery
+            service.
+          </p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="text-center">
+          <div
+            class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+            style="width: 80px; height: 80px"
+          >
+                        <ion-icon name="restaurant-outline" size="large"></ion-icon>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-3">Top Restaurants</h5>
+          <p class="text-muted">
+            Choose from hundreds of top-rated restaurants in your area.
+          </p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="text-center">
+          <div
+            class="bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+            style="width: 80px; height: 80px"
+          >
+                        <ion-icon name="shield-checkmark-outline" size="large"></ion-icon>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-3">Safe & Secure</h5>
+          <p class="text-muted">
+            Your payment and personal information are always secure with us.
+          </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h2 class="display-5 fw-bold text-dark mb-3">Ready to Order?</h2>
+        <p class="lead text-muted mb-4">
+          Join thousands of satisfied customers who trust us for their food
+          delivery needs.
+        </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+        <a
+          href="{% url 'users:all_restaurants' %}"
+          class="btn btn-primary btn-lg"
+        >
+                    <ion-icon name="restaurant-outline" class="me-2"></ion-icon>
+          View All Restaurants
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mobile Hero Section Spacing -->
+<style>
+  @media (max-width: 767.98px) {
+    .hero-section .d-flex {
+      margin-bottom: 2rem !important;
+    }
+
+    .hero-section .btn {
+      width: 100%;
+      margin-bottom: 0.75rem;
+    }
+
+    .hero-section .btn:last-child {
+      margin-bottom: 0;
+    }
+
+    .hero-section .hero-image {
+      margin-top: 2rem;
+    }
+  }
+
+  @media (min-width: 576px) and (max-width: 991.98px) {
+    .hero-section .d-flex {
+      margin-bottom: 1.5rem;
+    }
+  }
+</style>
+
+<!-- Carousel and Card Styling -->
+<style>
+  #desktopCarousel, #mobileCarousel {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding-bottom: 20px;
+    position: relative;
+  }
+
+  .restaurant-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: none;
+    max-width: 100%;
+  }
+
+  .carousel-control-prev,
+  .carousel-control-next {
+    width: 5%;
+  }
+
+  .carousel-control-prev-icon,
+  .carousel-control-next-icon {
+    background-color: #94d82d;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+  }
+
+  .carousel-indicators {
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 0;
+    z-index: 10;
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .carousel-indicators button {
+    background-color: rgba(148, 216, 45, 0.5) !important;
+    border: 2px solid #94d82d !important;
+    border-radius: 50% !important;
+    width: 12px !important;
+    height: 12px !important;
+    margin: 0 6px !important;
+    padding: 0 !important;
+    transition: all 0.3s ease !important;
+    opacity: 0.7 !important;
+    text-indent: 0 !important;
+    background-clip: unset !important;
+    border-top: 2px solid #94d82d !important;
+    border-bottom: 2px solid #94d82d !important;
+    border-left: 2px solid #94d82d !important;
+    border-right: 2px solid #94d82d !important;
+    box-sizing: border-box !important;
+  }
+
+  .carousel-indicators button:hover {
+    opacity: 1 !important;
+    transform: scale(1.1) !important;
+  }
+
+  .carousel-indicators .active {
+    background-color: #94d82d !important;
+    border-color: #7bb32a !important;
+    opacity: 1 !important;
+    transform: scale(1.2) !important;
+    box-shadow: 0 0 8px rgba(148, 216, 45, 0.6) !important;
+  }
+
+  /* Override Bootstrap default carousel indicator styles */
+  .carousel-indicators [data-bs-target] {
+    width: 12px !important;
+    height: 12px !important;
+    border-radius: 50% !important;
+    background-color: rgba(148, 216, 45, 0.5) !important;
+    border: 2px solid #94d82d !important;
+    margin: 0 6px !important;
+    padding: 0 !important;
+    text-indent: 0 !important;
+    background-clip: unset !important;
+    box-sizing: border-box !important;
+    transition: all 0.3s ease !important;
+    opacity: 0.7 !important;
+  }
+
+  .carousel-indicators [data-bs-target]:hover {
+    opacity: 1 !important;
+    transform: scale(1.1) !important;
+  }
+
+  .carousel-indicators [data-bs-target].active {
+    background-color: #94d82d !important;
+    border-color: #7bb32a !important;
+    opacity: 1 !important;
+    transform: scale(1.2) !important;
+    box-shadow: 0 0 8px rgba(148, 216, 45, 0.6) !important;
+  }
+
+  .rating ion-icon {
+    font-size: 14px;
+  }
+
+  @media (max-width: 991px) {
+    #mobileCarousel {
+      max-width: 100%;
+    }
+    
+    #mobileCarousel .carousel-item {
+      display: block !important;
+    }
+    
+    #mobileCarousel .carousel-item:not(.active) {
+      display: none !important;
+    }
+    
+    #mobileCarousel .carousel-item.active {
+      display: block !important;
+    }
+  }
+
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Initialize both carousels
+    if (typeof bootstrap !== 'undefined' && bootstrap.Carousel) {
+      // Initialize Desktop Carousel
+      const desktopCarousel = document.getElementById('desktopCarousel');
+      if (desktopCarousel) {
+        new bootstrap.Carousel(desktopCarousel, {
+          interval: 5000,
+          wrap: true,
+          touch: true
+        });
+      }
+      
+      // Initialize Mobile Carousel
+      const mobileCarousel = document.getElementById('mobileCarousel');
+      if (mobileCarousel) {
+        console.log('Initializing mobile carousel...');
+        const carousel = new bootstrap.Carousel(mobileCarousel, {
+          interval: 5000,
+          wrap: true,
+          touch: true
+        });
+        
+        // Debug: Log carousel items
+        const carouselItems = mobileCarousel.querySelectorAll('.carousel-item');
+        console.log('Mobile carousel items found:', carouselItems.length);
+        
+        // Ensure first item is active
+        carouselItems.forEach((item, index) => {
+          if (index === 0) {
+            item.classList.add('active');
+          } else {
+            item.classList.remove('active');
+          }
+        });
+      }
+    }
+
+        // Card hover effects
+    const cards = document.querySelectorAll(".restaurant-card");
+    cards.forEach((card) => {
+      card.addEventListener("mouseenter", function () {
+        this.style.transform = "translateY(-5px)";
+        this.style.transition = "transform 0.3s ease";
+      });
+
+      card.addEventListener("mouseleave", function () {
+        this.style.transform = "translateY(0)";
+            });
+        });
+    });
+</script>
+{% endblock %}

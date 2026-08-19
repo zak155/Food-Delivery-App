@@ -1,0 +1,863 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block title %}Order Management - FoodOrdering{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-light-green py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold text-dark mb-3">
+                    {% if user.role == 'admin' %}
+                        Admin - Order Management
+                    {% else %}
+                        Delivery Dashboard
+                    {% endif %}
+                </h1>
+                <p class="lead text-muted mb-4">
+                    {% if user.role == 'admin' %}
+                        Welcome back, {{ user.username }}! Monitor all orders and delivery status across the platform.
+                    {% else %}
+                        Welcome back, {{ user.username }}! Manage your deliveries and track order status.
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-lg-4 text-center">
+                <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 120px; height: 120px;">
+                    <ion-icon name="bicycle-outline" size="large" class="text-white"></ion-icon>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-5">
+    <div class="container">
+        {% csrf_token %}
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" aria-checked="true" id="autoRefreshToggle" checked>
+                <label class="form-check-label" for="autoRefreshToggle">Auto-refresh orders</label>
+            </div>
+            <div class="d-flex gap-2">
+                <button id="refreshOrdersBtn" class="btn btn-outline-primary btn-sm">
+                    <ion-icon name="refresh-outline" class="me-1"></ion-icon>
+                    Refresh now
+                </button>
+            </div>
+        </div>
+        <div class="row g-4 mb-5">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center stats-card">
+                    <div class="card-body">
+                        <div class="bg-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <ion-icon name="time-outline" size="large" class="text-white"></ion-icon>
+                        </div>
+                        <h3 id="ddPending" class="fw-bold text-dark" data-orders-count="{{ orders|length }}">{{ orders.count }}</h3>
+                        <p class="text-muted mb-0">
+                            {% if user.role == 'admin' %}
+                                Total Orders
+                            {% else %}
+                                Pending Orders
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center stats-card">
+                    <div class="card-body">
+                        <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <ion-icon name="checkmark-circle-outline" size="large" class="text-white"></ion-icon>
+                        </div>
+                        <h3 id="ddCompletedToday" class="fw-bold text-dark">0</h3>
+                        <p class="text-muted mb-0">Completed Today</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center stats-card">
+                    <div class="card-body">
+                        <div class="bg-info rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <ion-icon name="bicycle-outline" size="large" class="text-white"></ion-icon>
+                        </div>
+                        <h3 id="ddInTransit" class="fw-bold text-dark">0</h3>
+                        <p class="text-muted mb-0">In Transit</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center stats-card">
+                    <div class="card-body">
+                        <div class="bg-danger rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <ion-icon name="cash-outline" size="large" class="text-white"></ion-icon>
+                        </div>
+                        <h3 id="ddEarningsToday" class="fw-bold text-dark">$0</h3>
+                        <p class="text-muted mb-0">Earnings Today</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Orders Section -->
+        {% if orders %}
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="fw-bold text-dark mb-4">
+                        {% if user.role == 'admin' %}
+                            All Orders
+                        {% else %}
+                            Ready for Pickup
+                        {% endif %}
+                    </h2>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                {% for order in orders %}
+                    <div class="col-lg-6">
+                        <div class="card h-100 border-0 shadow-sm order-card">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <h5 class="card-title fw-bold text-dark mb-0">Order #{{ order.id }}</h5>
+                                    <span class="badge bg-{% if order.status == 'pending' %}warning{% elif order.status == 'confirmed' %}info{% elif order.status == 'delivered' %}success{% else %}danger{% endif %}">
+                                        {{ order.get_status_display }}
+                                    </span>
+                                </div>
+                                
+                                <div class="row g-3 mb-4">
+                                    <div class="col-6">
+                                        <div class="d-flex align-items-center">
+                                            <ion-icon name="person-outline" class="text-muted me-2"></ion-icon>
+                                            <div>
+                                                <small class="text-muted d-block">Customer</small>
+                                                <strong>{{ order.user.username }}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="d-flex align-items-center">
+                                            <ion-icon name="restaurant-outline" class="text-muted me-2"></ion-icon>
+                                            <div>
+                                                <small class="text-muted d-block">Restaurant</small>
+                                                <strong>{{ order.restaurant.name|default:"N/A" }}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="d-flex align-items-center">
+                                            <ion-icon name="cash-outline" class="text-muted me-2"></ion-icon>
+                                            <div>
+                                                <small class="text-muted d-block">Total Amount</small>
+                                                <strong class="text-success">${{ order.total_amount }}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="d-flex align-items-center">
+                                            <ion-icon name="time-outline" class="text-muted me-2"></ion-icon>
+                                            <div>
+                                                <small class="text-muted d-block">Order Time</small>
+                                                <strong>{{ order.created_at|date:"H:i" }}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex gap-2">
+                                    {% if user.role == 'admin' %}
+                                        <button class="btn btn-primary btn-sm">
+                                            <ion-icon name="eye-outline" class="me-1"></ion-icon>
+                                            View Details
+                                        </button>
+                                        <button class="btn btn-success btn-sm">
+                                            <ion-icon name="checkmark-outline" class="me-1"></ion-icon>
+                                            Update Status
+                                        </button>
+                                    {% else %}
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            {% if order.status == 'ready' %}
+                                                <button class="btn btn-success" data-accept-order="{{ order.id }}">
+                                                    <ion-icon name="checkmark-outline" class="me-1"></ion-icon>
+                                                    Accept Delivery
+                                                </button>
+                                            {% elif order.status == 'picked_up' %}
+                                                <button class="btn btn-warning" data-update-status data-status="in_transit" data-order-id="{{ order.id }}">
+                                                    <ion-icon name="bicycle-outline" class="me-1"></ion-icon>
+                                                    On the Way
+                                                </button>
+                                            {% elif order.status == 'in_transit' %}
+                                                <button class="btn btn-success" data-update-status data-status="delivered" data-order-id="{{ order.id }}">
+                                                    <ion-icon name="checkmark-done-outline" class="me-1"></ion-icon>
+                                                    Delivered
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="text-center py-5">
+                        <div class="bg-light-green rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 120px; height: 120px;">
+                            <ion-icon name="receipt-outline" size="large" class="text-success"></ion-icon>
+                        </div>
+                        <h3 class="fw-bold text-dark mb-3">No orders available</h3>
+                        <p class="text-muted mb-4">
+                            {% if user.role == 'admin' %}
+                                There are currently no orders in the system.
+                            {% else %}
+                                There are currently no confirmed orders available for delivery.
+                            {% endif %}
+                        </p>
+                        <a href="{% url 'users:profile' %}" class="btn btn-success">
+                            <ion-icon name="arrow-back-outline" class="me-2"></ion-icon>
+                            Back to Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Quick Actions Section -->
+{% if orders %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="fw-bold text-dark mb-4">Quick Actions</h2>
+                <p class="text-muted mb-4">Manage orders efficiently</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center h-100 quick-action-card">
+                    <div class="card-body">
+                        <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <ion-icon name="refresh-outline" size="large" class="text-white"></ion-icon>
+                        </div>
+                        <h6 class="fw-bold">Refresh Orders</h6>
+                        <p class="text-muted small">Check for new orders</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center h-100 quick-action-card">
+                    <div class="card-body">
+                        <div class="bg-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <ion-icon name="analytics-outline" size="large" class="text-white"></ion-icon>
+                        </div>
+                        <h6 class="fw-bold">View Analytics</h6>
+                        <p class="text-muted small">Track performance</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center h-100 quick-action-card">
+                    <div class="card-body">
+                        <div class="bg-info rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <ion-icon name="map-outline" size="large" class="text-white"></ion-icon>
+                        </div>
+                        <h6 class="fw-bold">Delivery Map</h6>
+                        <p class="text-muted small">View delivery routes</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center h-100 quick-action-card">
+                    <div class="card-body">
+                        <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <ion-icon name="settings-outline" size="large" class="text-white"></ion-icon>
+                        </div>
+                        <h6 class="fw-bold">Settings</h6>
+                        <p class="text-muted small">Manage preferences</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Comprehensive Dark Mode Styling for Delivery Dashboard -->
+<style>
+/* ============== LIGHT MODE STYLES ============== */
+
+.order-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.order-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1) !important;
+}
+
+/* Enhanced stats cards */
+.stats-card {
+    transition: all 0.3s ease;
+    border: 1px solid #dee2e6;
+}
+
+.stats-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Quick action cards */
+.quick-action-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.quick-action-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+}
+
+/* ============== DARK MODE STYLES ============== */
+
+[data-bs-theme="dark"] {
+    /* Hero Section Dark Mode */
+    .bg-light-green {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2c3136 100%) !important;
+    }
+
+    /* Text Colors */
+    .text-dark {
+        color: #f8f9fa !important;
+    }
+
+    .text-muted {
+        color: #adb5bd !important;
+    }
+
+    .text-success {
+        color: #94d82d !important;
+    }
+
+    /* Background Sections */
+    .bg-light {
+        background-color: #1a1a1a !important;
+    }
+
+    .bg-white {
+        background-color: #212529 !important;
+    }
+
+    /* Cards Dark Mode */
+    .card {
+        background-color: #212529;
+        border-color: #495057;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
+    }
+
+    .card-body {
+        color: #f8f9fa;
+    }
+
+    .card-title {
+        color: #f8f9fa;
+    }
+
+    /* Stats Cards Enhancement */
+    .stats-card {
+        background-color: #2c3136;
+        border-color: #495057;
+    }
+
+    .stats-card:hover {
+        background-color: #343a40;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        border-color: #94d82d;
+    }
+
+    .stats-card h3 {
+        color: #94d82d !important;
+    }
+
+    /* Order Cards Dark Mode */
+    .order-card {
+        background-color: #2c3136;
+        border-color: #495057;
+    }
+
+    .order-card:hover {
+        background-color: #343a40;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+        border-color: #94d82d;
+    }
+
+    .order-card .card-title {
+        color: #94d82d;
+    }
+
+    /* Badges Dark Mode */
+    .badge.bg-warning {
+        background-color: #fd7e14 !important;
+        color: #000 !important;
+    }
+
+    .badge.bg-info {
+        background-color: #0dcaf0 !important;
+        color: #000 !important;
+    }
+
+    .badge.bg-success {
+        background-color: #94d82d !important;
+        color: #000 !important;
+    }
+
+    .badge.bg-danger {
+        background-color: #dc3545 !important;
+        color: #fff !important;
+    }
+
+    /* Button Dark Mode */
+    .btn-primary {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: #fff;
+    }
+
+    .btn-primary:hover {
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
+    }
+
+    .btn-success {
+        background-color: #94d82d;
+        border-color: #94d82d;
+        color: #000;
+        font-weight: 600;
+    }
+
+    .btn-success:hover {
+        background-color: #7fb327;
+        border-color: #7fb327;
+        color: #000;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(148, 216, 45, 0.3);
+    }
+
+    .btn-warning {
+        background-color: #fd7e14;
+        border-color: #fd7e14;
+        color: #000;
+        font-weight: 600;
+    }
+
+    .btn-warning:hover {
+        background-color: #e56e02;
+        border-color: #d66500;
+        color: #000;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(253, 126, 20, 0.3);
+    }
+
+    .btn-outline-primary {
+        color: #0dcaf0;
+        border-color: #0dcaf0;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #0dcaf0;
+        border-color: #0dcaf0;
+        color: #000;
+    }
+
+    /* Icon Circles Dark Mode */
+    .bg-warning.rounded-circle {
+        background-color: #fd7e14 !important;
+    }
+
+    .bg-success.rounded-circle {
+        background-color: #94d82d !important;
+    }
+
+    .bg-info.rounded-circle {
+        background-color: #0dcaf0 !important;
+    }
+
+    .bg-danger.rounded-circle {
+        background-color: #dc3545 !important;
+    }
+
+    .bg-primary.rounded-circle {
+        background-color: #0d6efd !important;
+    }
+
+    /* Empty State Dark Mode */
+    .bg-light-green.rounded-circle {
+        background: linear-gradient(135deg, #94d82d 0%, #7fb327 100%) !important;
+    }
+
+    /* Quick Actions Cards Dark Mode */
+    .quick-action-card {
+        background-color: #2c3136;
+        border-color: #495057;
+    }
+
+    .quick-action-card:hover {
+        background-color: #343a40;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        border-color: #94d82d;
+    }
+
+    .quick-action-card h6 {
+        color: #94d82d;
+    }
+
+    /* Table Dark Mode */
+    .table {
+        --bs-table-bg: #212529;
+        --bs-table-color: #f8f9fa;
+        --bs-table-border-color: #495057;
+        --bs-table-hover-bg: #2c3136;
+        --bs-table-hover-color: #f8f9fa;
+    }
+
+    .table th {
+        color: #94d82d;
+        font-weight: 600;
+        border-bottom-color: #495057;
+    }
+
+    .table td {
+        border-bottom-color: #495057;
+    }
+
+    .table-sm th,
+    .table-sm td {
+        color: #f8f9fa;
+    }
+
+    /* Form Controls Dark Mode */
+    .form-check-input:checked {
+        background-color: #94d82d;
+        border-color: #94d82d;
+    }
+
+    .form-check-input:focus {
+        border-color: #94d82d;
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(148, 216, 45, 0.25);
+    }
+
+    .form-check-label {
+        color: #f8f9fa;
+    }
+
+    /* Animation enhancements */
+    .order-card,
+    .stats-card,
+    .quick-action-card {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .order-card::before,
+    .stats-card::before,
+    .quick-action-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(148, 216, 45, 0.1), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .order-card:hover::before,
+    .stats-card:hover::before,
+    .quick-action-card:hover::before {
+        left: 100%;
+    }
+}
+
+/* ============== KEYFRAME ANIMATIONS ============== */
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(148, 216, 45, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(148, 216, 45, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(148, 216, 45, 0);
+    }
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    0% {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ============== RESPONSIVE ENHANCEMENTS ============== */
+
+@media (max-width: 768px) {
+    [data-bs-theme="dark"] .order-card,
+    [data-bs-theme="dark"] .stats-card,
+    [data-bs-theme="dark"] .quick-action-card {
+        margin-bottom: 1rem;
+    }
+
+    [data-bs-theme="dark"] .table-responsive {
+        border-radius: 0.375rem;
+        border: 1px solid #495057;
+    }
+}
+
+/* ============== LOADING STATES ============== */
+
+.loading-shimmer {
+    background: linear-gradient(90deg, #2c3136 25%, #495057 50%, #2c3136 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+[data-bs-theme="dark"] .loading-shimmer {
+    background: linear-gradient(90deg, #212529 25%, #2c3136 50%, #212529 75%);
+    background-size: 200% 100%;
+}
+
+/* ============== ACCESSIBILITY ENHANCEMENTS ============== */
+
+[data-bs-theme="dark"] .btn:focus,
+[data-bs-theme="dark"] .card:focus {
+    outline: 2px solid #94d82d;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    [data-bs-theme="dark"] .card {
+        border-width: 2px;
+    }
+    
+    [data-bs-theme="dark"] .btn {
+        border-width: 2px;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    [data-bs-theme="dark"] .order-card,
+    [data-bs-theme="dark"] .stats-card,
+    [data-bs-theme="dark"] .quick-action-card,
+    [data-bs-theme="dark"] .btn {
+        transition: none;
+    }
+    
+    [data-bs-theme="dark"] .order-card::before,
+    [data-bs-theme="dark"] .stats-card::before,
+    [data-bs-theme="dark"] .quick-action-card::before {
+        display: none;
+    }
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Poll for new/updated orders every 15 seconds for delivery role
+    const role = '{{ user.role }}';
+    const audioEl = document.getElementById('newOrderSound');
+    const autoToggle = document.getElementById('autoRefreshToggle');
+    const refreshBtn = document.getElementById('refreshOrdersBtn');
+    let pollTimer = null;
+
+    function startPolling() {
+        if (pollTimer) return;
+        pollTimer = setInterval(pollOnce, 15000);
+    }
+
+    function stopPolling() {
+        if (pollTimer) {
+            clearInterval(pollTimer);
+            pollTimer = null;
+        }
+    }
+
+    function pollOnce() {
+        fetch('{% url "orders:delivery_orders_poll" %}', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+          .then(r => r.json())
+          .then(data => {
+              if (data.success) {
+                  const countEl = document.querySelector('[data-orders-count]');
+                  const currentCount = parseInt(countEl?.getAttribute('data-orders-count') || '0');
+                  const newCount = data.orders.length;
+                  if (newCount !== currentCount) {
+                      if (newCount > currentCount && audioEl) {
+                          try { audioEl.currentTime = 0; audioEl.play(); } catch (e) {}
+                      }
+                      window.location.reload();
+                  }
+              }
+          })
+          .catch(() => {});
+    }
+
+    if (role === 'delivery' || role === 'admin') {
+        if (autoToggle) {
+            autoToggle.addEventListener('change', function() {
+                if (this.checked) startPolling(); else stopPolling();
+            });
+        }
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', function() {
+                pollOnce();
+            });
+        }
+        if (!autoToggle || autoToggle.checked) startPolling();
+        // Initial stats load
+        fetch('{% url "orders:delivery_stats" %}', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+          .then(r=>r.json())
+          .then(d=>{
+            if (d.success) {
+                const s = d.stats||{};
+                const set = (id,v)=>{ const el = document.getElementById(id); if (el) el.textContent = v; };
+                set('ddPending', s.pending||0);
+                set('ddCompletedToday', s.completed_today||0);
+                set('ddInTransit', s.in_transit||0);
+                set('ddEarningsToday', '$'+(parseFloat(s.earnings_today)||0).toFixed(2));
+            }
+          })
+          .catch(()=>{});
+    }
+
+    // Delegate Accept Delivery button clicks
+    document.body.addEventListener('click', function(e) {
+        const btn = e.target.closest('[data-accept-order]');
+        if (!btn) return;
+        const orderId = btn.getAttribute('data-accept-order');
+        fetch('{% url "orders:delivery_accept_order" 0 %}'.replace('/0/', '/' + orderId + '/'), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert(data.error || 'Failed to accept order');
+            }
+        })
+        .catch(() => alert('Failed to accept order'));
+    });
+    document.body.addEventListener('click', function(e){
+        const btn = e.target.closest('[data-update-status]');
+        if (!btn) return;
+        const orderId = btn.getAttribute('data-order-id');
+        const newStatus = btn.getAttribute('data-status');
+        fetch('{% url "orders:delivery_update_status" 0 %}'.replace('/0/', '/' + orderId + '/'), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status: newStatus })
+        })
+        .then(r=>r.json())
+        .then(d=>{
+            if (d.success) { window.location.reload(); }
+            else { alert(d.error || 'Failed to update status'); }
+        })
+        .catch(()=> alert('Failed to update status'));
+    });
+});
+</script>
+<audio id="newOrderSound" preload="auto">
+    <source src="data:audio/mp3;base64,//uQZAAAAAAAAAAAAAAAAAAAA..." type="audio/mpeg">
+</audio>
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="fw-bold text-dark mb-4">Previous Deliveries</h2>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead><tr><th>Order</th><th>Customer</th><th>Restaurant</th><th>Total</th><th>Delivered At</th></tr></thead>
+                                <tbody id="deliveryHistoryBody"><tr><td colspan="5" class="text-center py-3 text-muted">Loading...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function(){
+        fetch('{% url "orders:delivery_history" %}', { headers: { 'X-Requested-With': 'XMLHttpRequest' }})
+          .then(r=>r.json())
+          .then(d=>{
+              const body = document.getElementById('deliveryHistoryBody');
+              if (!body) return;
+              if (!d.success) { body.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Failed to load</td></tr>'; return; }
+              const rows = (d.orders||[]).map(o=>`<tr>
+                <td><span class="fw-bold">#${o.id}</span></td>
+                <td>${o.user||'-'}</td>
+                <td>${o.restaurant||'-'}</td>
+                <td class="fw-bold text-success">$${(parseFloat(o.total_amount)||0).toFixed(2)}</td>
+                <td><small class="text-muted">${o.updated_at}</small></td>
+              </tr>`).join('');
+              body.innerHTML = rows || '<tr><td colspan="5" class="text-center py-3 text-muted">No deliveries yet</td></tr>';
+          })
+          .catch(()=>{
+              const body = document.getElementById('deliveryHistoryBody');
+              if (body) body.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Network error</td></tr>';
+          });
+    });
+    </script>
+</section>
+{% endblock %}

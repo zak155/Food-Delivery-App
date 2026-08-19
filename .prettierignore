@@ -1,0 +1,20 @@
+# Django templates
+**/templates/**/*.html
+**/templates/**/*.htm
+
+# Static files
+**/static/**/*
+**/staticfiles/**/*
+
+# Python files (optional - if you don't want Prettier to format Python)
+**/*.py
+
+# Django specific files
+**/migrations/**/*
+**/venv/**/*
+**/__pycache__/**/*
+
+# Other files to ignore
+**/node_modules/**/*
+**/.git/**/*
+**/media/**/*

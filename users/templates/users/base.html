@@ -1,0 +1,582 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {# SEO Dynamic Meta Description w/ Fallback #}
+    <meta name="description" content="{{ meta_description|default:'Fast and easy food delivery near you. Browse restaurants, customize orders, and get meals delivered quickly.' }}">
+
+    {# Optional Keywords (Google no longer uses them, but ok to leave) #}
+    <meta name="keywords" content="{{ meta_keywords|default:'food delivery, online food, order food, restaurants, meals' }}">
+
+    {# CSRF for Django Forms #}
+    <meta name="csrf-token" content="{{ csrf_token }}">
+
+    {# Page Title — dynamic block + fallback site_name #}
+    <title>{% block title %}{{ site_name|default:"FoodDeliveryPro" }}{% endblock %}</title>
+
+    {# Open Graph (Social / Google Rich Preview) #}
+    <meta property="og:title" content="{{ og_title|default:'Food Delivery PRO - Order Food Online' }}">
+    <meta property="og:description" content="{{ og_description|default:'Order your favorite meals from nearby restaurants with fast delivery.' }}">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="{% if og_image %}{{ og_image }}{% else %}{% static 'img/social-screenshot.jpg' %}{% endif %}">
+
+    {# Canonical URL — DYNAMIC (no hard-coded URLs anymore) #}
+    <link rel="canonical" href="{{ request.build_absolute_uri|cut:'?'}}">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+    
+    <!-- Ionicons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    <!-- Favicon -->
+    {% if site_favicon %}
+        <link rel="icon" href="{{ site_favicon.url }}">
+    {% else %}
+        <link rel="icon" href="{% static 'img/favicon.png' %}">
+    {% endif %}
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light-green sticky-top" id="mainNavbar">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{% if user.is_authenticated and user.role == 'owner' %}{% url 'restaurants:restaurant_dashboard' %}{% else %}{% url 'users:home' %}{% endif %}">
+                {% if site_logo %}
+                    <img src="{{ site_logo.url }}" alt="{{ site_name|default:'FoodOrdering' }}" class="me-2" style="height: 40px;">
+                {% endif %}
+                <span class="fw-bold text-dark fs-3">{{ site_name|default:'FoodOrdering' }}</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        {% if user.is_authenticated and user.role == 'owner' %}
+                            <a class="nav-link fw-medium" href="{% url 'restaurants:restaurant_dashboard' %}">
+                                <ion-icon name="restaurant-outline" class="me-1"></ion-icon>
+                                My Restaurant
+                            </a>
+                        {% else %}
+                            <a class="nav-link fw-medium" href="{% url 'users:home' %}">Home</a>
+                        {% endif %}
+                    </li>
+                    {% if not user.is_authenticated or user.role != 'delivery' %}
+                        <li class="nav-item">
+                            <a class="nav-link fw-medium" href="{% url 'meals:meal_list' %}">Meals</a>
+                        </li>
+                    {% endif %}
+                    {% if user.is_authenticated and user.role != 'delivery' %}
+                        <li class="nav-item">
+                            <a class="nav-link fw-medium" href="{% url 'meals:user_favorites' %}">
+                                <ion-icon name="heart-outline" class="me-1"></ion-icon>
+                                My Favorites
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                        {% if user.role == 'admin' %}
+                            <li class="nav-item">
+                                <a class="nav-link fw-medium" href="{% url 'restaurants:dashboard' %}">Restaurants</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link fw-medium" href="{% url 'orders:delivery_dashboard' %}">Orders</a>
+                            </li>
+                        {% elif user.role == 'owner' %}
+                            <li class="nav-item">
+                                <a class="nav-link fw-medium" href="{% url 'restaurants:restaurant_dashboard' %}">Dashboard</a>
+                            </li>
+                        {% elif user.role == 'delivery' %}
+                            <li class="nav-item">
+                                <a class="nav-link fw-medium" href="{% url 'orders:delivery_dashboard' %}">Orders</a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+                
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-link text-dark me-3" id="darkModeToggle" title="Toggle Dark Mode">
+                        <ion-icon name="moon-outline" style="font-size: 24px;" id="darkModeIcon"></ion-icon>
+                    </button>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'users:profile' %}" class="text-dark me-3">
+                            <ion-icon name="person-outline" style="font-size: 24px;"></ion-icon>
+                        </a>
+                        {% if user.role in 'customer,owner,admin' %}
+                        <a href="{% url 'orders:cart' %}" class="text-dark d-flex align-items-center position-relative" id="cartLink">
+                            <ion-icon name="cart-outline" style="font-size: 24px;" class="me-1"></ion-icon>
+                            <span class="cart-counter" id="cartCount">Cart (0)</span>
+                        </a>
+                        {% endif %}
+                        <div class="dropdown ms-3">
+                            <button class="btn btn-link text-dark dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <ion-icon name="menu-outline" style="font-size: 24px;"></ion-icon>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{% url 'users:profile' %}">
+                                    <ion-icon name="person-outline" class="me-2"></ion-icon>Profile
+                                </a></li>
+                                {% if user.role == 'admin' %}
+                                <li><a class="dropdown-item" href="{% url 'users:admin_dashboard' %}">
+                                    <ion-icon name="settings-outline" class="me-2"></ion-icon>Admin Dashboard
+                                </a></li>
+                                {% elif user.role == 'owner' %}
+                                <li><a class="dropdown-item" href="{% url 'restaurants:restaurant_dashboard' %}">
+                                    <ion-icon name="restaurant-outline" class="me-2"></ion-icon>Restaurant Dashboard
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'restaurants:restaurant_settings' %}">
+                                    <ion-icon name="settings-outline" class="me-2"></ion-icon>Restaurant Settings
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'users:home' %}">
+                                    <ion-icon name="home-outline" class="me-2"></ion-icon>Public Home
+                                </a></li>
+                                {% elif user.role == 'delivery' %}
+                                <li><a class="dropdown-item" href="{% url 'orders:delivery_dashboard' %}">
+                                    <ion-icon name="car-outline" class="me-2"></ion-icon>Delivery Dashboard
+                                </a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'users:logout' %}">
+                                    <ion-icon name="log-out-outline" class="me-2"></ion-icon>Logout
+                                </a></li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'users:login' %}" class="text-dark me-3">
+                            <ion-icon name="person-outline" style="font-size: 24px;"></ion-icon>
+                        </a>
+                        <a href="{% url 'users:login' %}" class="btn btn-success">Start Now</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <div class="main-content-wrapper" id="mainContentWrapper">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center mb-3">
+                        {% if site_logo %}
+                            <img src="{{ site_logo.url }}" alt="{{ site_name|default:'FoodOrdering' }}" class="me-2" style="height: 30px;">
+                        {% endif %}
+                        <span class="fw-bold fs-4">{{ site_name|default:'FoodOrdering' }}</span>
+                    </div>
+                    <p class="text-light-50 small">{{ site_description|default:'Order delicious meals from top restaurants' }}</p>
+                    <div class="d-flex align-items-center">
+                        <span class="me-3">VISA</span>
+                        <span>Mastercard</span>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="d-flex flex-wrap justify-content-md-end">
+                        <a href="#" class="text-light text-decoration-none me-3 mb-2">Corporate</a>
+                        <a href="#" class="text-light text-decoration-none me-3 mb-2">Careers</a>
+                        <a href="#" class="text-light text-decoration-none me-3 mb-2">Terms and Conditions</a>
+                        <a href="#" class="text-light text-decoration-none me-3 mb-2">FAQ</a>
+                        <a href="#" class="text-light text-decoration-none me-3 mb-2">Privacy Policy</a>
+                        <a href="mailto:{{ contact_email|default:'support@foodordering.com' }}" class="text-light text-decoration-none me-3 mb-2">Contact Us</a>
+                        <a href="#" class="text-light text-decoration-none mb-2">Sitemap</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Add to Cart Popup - Will be dynamically created by cart.js -->
+    <div class="add-to-cart-popup position-fixed" id="addToCartPopup" style="display: none; z-index: 9999;">
+        <!-- Content will be dynamically generated by JavaScript -->
+    </div>
+
+    <!-- Custom JS -->
+    <script src="{% static 'js/script.js' %}"></script>
+    
+    <!-- Dark Mode and Cart Functionality -->
+    <script>
+        // Dark Mode Toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const darkModeIcon = document.getElementById('darkModeIcon');
+            const htmlElement = document.documentElement;
+
+            // Check for saved theme preference or default to light mode
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            htmlElement.setAttribute('data-bs-theme', currentTheme);
+            updateDarkModeIcon(currentTheme);
+
+            // Add click event listener to toggle button
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('click', function () {
+                    const currentTheme = htmlElement.getAttribute('data-bs-theme');
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    
+                    // Update theme
+                    htmlElement.setAttribute('data-bs-theme', newTheme);
+                    
+                    // Save to localStorage
+                    localStorage.setItem('theme', newTheme);
+                    
+                    // Update icon
+                    updateDarkModeIcon(newTheme);
+                });
+            }
+
+            function updateDarkModeIcon(theme) {
+                if (darkModeIcon) {
+                    if (theme === 'dark') {
+                        darkModeIcon.setAttribute('name', 'sunny-outline');
+                    } else {
+                        darkModeIcon.setAttribute('name', 'moon-outline');
+                    }
+                }
+            }
+
+            // Update cart count
+            updateCartCount();
+        });
+
+        // Cart functionality
+        function updateCartCount() {
+            // This would typically fetch from the server
+            // For now, we'll use a simple counter
+            const cartCount = document.getElementById('cartCount');
+            if (cartCount) {
+                // You can implement AJAX to get real cart count
+                cartCount.textContent = 'Cart (0)';
+            }
+        }
+
+        // showAddToCartPopup function removed - now handled by cart.js
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+
+    <!-- Popup Styles -->
+    <style>
+        .add-to-cart-popup {
+            animation: slideInUp 0.3s ease-out;
+            z-index: 9999;
+        }
+
+        .popup-content {
+            position: relative;
+            min-width: 250px;
+            max-width: 300px;
+        }
+
+        .popup-arrow-up {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 10px solid var(--bs-body-bg, #fff);
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+    <!-- Include Cart JavaScript for all users (needed for public pages like restaurant detail) -->
+    <script src="{% static 'js/cart.js' %}"></script>
+
+    <!-- Smart Navbar JavaScript -->
+    <script>
+        class SmartNavbar {
+            constructor() {
+                this.navbar = document.getElementById('mainNavbar');
+                this.contentWrapper = document.getElementById('mainContentWrapper');
+                this.lastScrollY = window.scrollY;
+                this.scrollThreshold = 0;
+                this.isHidden = false;
+                this.scrollDirection = 'down';
+                this.sections = [];
+                this.navbarHeight = 0;
+                this.debug = false; // Set to true for debugging
+                this.deviceType = this.getDeviceType();
+                
+                this.init();
+            }
+
+            init() {
+                if (!this.navbar) return;
+                
+                // Calculate navbar height
+                this.calculateNavbarHeight();
+                
+                // Set initial content padding
+                this.setInitialContentPadding();
+                
+                // Find sections on the page
+                this.findSections();
+                
+                // Calculate scroll threshold (2 sections + navbar height)
+                this.calculateScrollThreshold();
+                
+                // Add scroll event listener
+                window.addEventListener('scroll', this.handleScroll.bind(this));
+                
+                // Add resize event listener to recalculate on window resize
+                window.addEventListener('resize', this.handleResize.bind(this));
+                
+                // Add CSS for smooth transitions
+                this.addStyles();
+            }
+
+            calculateNavbarHeight() {
+                this.navbarHeight = this.navbar.offsetHeight;
+            }
+
+            getDeviceType() {
+                const width = window.innerWidth;
+                if (width <= 768) return 'mobile';
+                if (width <= 1024) return 'tablet';
+                return 'desktop';
+            }
+
+            setInitialContentPadding() {
+                // Set initial padding to account for full navbar height
+                if (this.contentWrapper) {
+                    this.contentWrapper.style.paddingTop = this.navbarHeight + 'px';
+                    this.contentWrapper.style.transition = 'padding-top 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                    
+                    if (this.debug) {
+                        console.log('Set initial content padding:', this.navbarHeight + 'px');
+                    }
+                }
+            }
+
+            findSections() {
+                // Find all sections, headers, or main content areas
+                this.sections = document.querySelectorAll('section, .hero-section, .main-content, .container > div:first-child');
+                
+                // If no sections found, use viewport height as fallback
+                if (this.sections.length === 0) {
+                    this.sections = [{ offsetTop: 0, offsetHeight: window.innerHeight }];
+                }
+            }
+
+            calculateScrollThreshold() {
+                if (this.sections.length >= 2) {
+                    // Calculate height of first 2 sections
+                    const firstSectionHeight = this.sections[0].offsetHeight;
+                    const secondSectionHeight = this.sections[1].offsetHeight;
+                    this.scrollThreshold = firstSectionHeight + secondSectionHeight - this.navbarHeight;
+                    
+                    if (this.debug) {
+                        console.log('Smart Navbar Debug:', {
+                            sectionsFound: this.sections.length,
+                            firstSectionHeight: firstSectionHeight,
+                            secondSectionHeight: secondSectionHeight,
+                            navbarHeight: this.navbarHeight,
+                            calculatedThreshold: this.scrollThreshold
+                        });
+                    }
+                } else {
+                    // Fallback: use 2 viewport heights minus navbar height
+                    this.scrollThreshold = (window.innerHeight * 2) - this.navbarHeight;
+                    
+                    if (this.debug) {
+                        console.log('Smart Navbar Debug (Fallback):', {
+                            sectionsFound: this.sections.length,
+                            viewportHeight: window.innerHeight,
+                            navbarHeight: this.navbarHeight,
+                            calculatedThreshold: this.scrollThreshold
+                        });
+                    }
+                }
+                
+                // Ensure minimum threshold
+                this.scrollThreshold = Math.max(this.scrollThreshold, window.innerHeight);
+                
+                if (this.debug) {
+                    console.log('Final scroll threshold:', this.scrollThreshold);
+                }
+            }
+
+            handleScroll() {
+                const currentScrollY = window.scrollY;
+                const scrollDelta = currentScrollY - this.lastScrollY;
+                const isMobile = window.innerWidth <= 768;
+                const isTablet = window.innerWidth > 768 && window.innerWidth <= 1024;
+                
+                // Determine scroll direction
+                this.scrollDirection = scrollDelta > 0 ? 'down' : 'up';
+                
+                // Mobile: More sensitive behavior
+                if (isMobile) {
+                    if (currentScrollY > this.scrollThreshold) {
+                        if (this.scrollDirection === 'down' && !this.isHidden) {
+                            this.hideNavbar();
+                        } else if (this.scrollDirection === 'up' && this.isHidden) {
+                            this.showNavbar();
+                        }
+                    } else if (this.isHidden) {
+                        // Always show navbar when above threshold on mobile
+                        this.showNavbar();
+                    }
+                }
+                // Tablet: Moderate sensitivity
+                else if (isTablet) {
+                    if (currentScrollY > this.scrollThreshold) {
+                        if (this.scrollDirection === 'down' && !this.isHidden) {
+                            this.hideNavbar();
+                        } else if (this.scrollDirection === 'up' && this.isHidden) {
+                            this.showNavbar();
+                        }
+                    } else if (this.isHidden) {
+                        this.showNavbar();
+                    }
+                }
+                // Desktop: Original behavior
+                else {
+                    if (currentScrollY > this.scrollThreshold) {
+                        if (this.scrollDirection === 'down' && !this.isHidden) {
+                            this.hideNavbar();
+                        } else if (this.scrollDirection === 'up' && this.isHidden) {
+                            this.showNavbar();
+                        }
+                    } else if (this.isHidden) {
+                        // Always show navbar when above threshold
+                        this.showNavbar();
+                    }
+                }
+                
+                this.lastScrollY = currentScrollY;
+            }
+
+            hideNavbar() {
+                if (this.isHidden) return;
+                
+                this.navbar.style.transform = 'translateY(-100%)';
+                this.isHidden = true;
+                
+                // Adjust content padding to account for hidden navbar
+                if (this.contentWrapper) {
+                    this.contentWrapper.style.paddingTop = '0px'; // No padding when navbar is completely hidden
+                    
+                    if (this.debug) {
+                        console.log('Navbar hidden, content padding: 0px');
+                    }
+                }
+            }
+
+            showNavbar() {
+                if (!this.isHidden) return;
+                
+                this.navbar.style.transform = 'translateY(0)';
+                this.isHidden = false;
+                
+                // Restore full navbar height padding
+                if (this.contentWrapper) {
+                    this.contentWrapper.style.paddingTop = this.navbarHeight + 'px';
+                    
+                    if (this.debug) {
+                        console.log('Navbar shown, content padding:', this.navbarHeight + 'px');
+                    }
+                }
+            }
+
+            handleResize() {
+                // Recalculate on window resize
+                this.calculateNavbarHeight();
+                this.setInitialContentPadding();
+                this.findSections();
+                this.calculateScrollThreshold();
+            }
+
+            addStyles() {
+                // Add CSS for smooth transitions
+                const style = document.createElement('style');
+                style.textContent = `
+                    #mainNavbar {
+                        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                        will-change: transform;
+                    }
+                    
+                    /* Navbar completely hides when scrolling down */
+                    #mainNavbar.hidden {
+                        transform: translateY(-100%);
+                    }
+                    
+                    /* Ensure navbar stays on top when hidden */
+                    .navbar.sticky-top {
+                        z-index: 1030;
+                    }
+                    
+                    /* Smooth scroll behavior */
+                    html {
+                        scroll-behavior: smooth;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+
+        // Initialize smart navbar when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            new SmartNavbar();
+        });
+    </script>
+</body>
+</html>
