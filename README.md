@@ -37,7 +37,7 @@ A Django web app for ordering food online. Restaurant owners can manage their me
 
 ---
 
-### 🚚 Delivery Dashboard
+### 🚚 login Dashboard
 
 ![Login](/screenshots/login.PNG)
 
@@ -50,7 +50,7 @@ A Django web app for ordering food online. Restaurant owners can manage their me
 
 ---
 
-### 📱 customer Design
+### 📱 customer dasboard
 
 ![Mobile Responsive View](/screenshots/customer.PNG)
 
